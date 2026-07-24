@@ -34,7 +34,14 @@ import {
   ExternalLink,
   Globe,
   MousePointer,
-  Zap
+  Zap,
+  ShieldCheck,
+  UserPlus,
+  UserCheck,
+  UserX,
+  Mail,
+  Phone,
+  MapPin
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { AdminTab, ProductCategory, ProductSize, Product } from '../types';
@@ -247,73 +254,163 @@ export const AdminPanel: React.FC = () => {
   const totalProductCount = products.length;
   const lowStockCount = products.filter((p) => p.stockQuantity < 5).length;
 
-  // Customer Search & Calculations
-  const [customerSearch, setCustomerSearch] = useState('');
-
-  const customersMap = new Map<string, {
-    email: string;
-    fullName: string;
-    phone: string;
-    city: string;
-    totalOrders: number;
-    totalSpent: number;
-    lastOrderDate: string;
-  }>();
-
-  orders.forEach((o) => {
-    const key = o.shippingAddress.email ? o.shippingAddress.email.toLowerCase() : 'guest@zapin.com';
-    const existing = customersMap.get(key);
-    if (existing) {
-      existing.totalOrders += 1;
-      existing.totalSpent += o.total;
-    } else {
-      customersMap.set(key, {
-        email: o.shippingAddress.email || key,
-        fullName: o.shippingAddress.fullName || 'Registered Customer',
-        phone: o.shippingAddress.phone || 'N/A',
-        city: o.shippingAddress.city || 'Seoul',
-        totalOrders: 1,
-        totalSpent: o.total,
-        lastOrderDate: o.createdAt ? new Date(o.createdAt).toLocaleDateString() : 'Recent'
-      });
+  // User Management State & Calculations
+  const initialUserAccountsList = [
+    {
+      id: 'usr-admin-1',
+      fullName: 'Pantje (Super Admin)',
+      email: 'pantje3@gmail.com',
+      phone: '+91 98765 43210',
+      role: 'Super Admin' as const,
+      status: 'Active' as const,
+      city: 'Seoul / Delhi',
+      joinDate: '2026-01-15',
+      totalOrders: 3,
+      totalSpent: 12499
+    },
+    {
+      id: 'usr-vip-2',
+      fullName: 'Min-ah Park',
+      email: 'minah.park@seoulstyle.kr',
+      phone: '+82 10 4321 8765',
+      role: 'VIP Customer' as const,
+      status: 'Active' as const,
+      city: 'Gangnam, Seoul',
+      joinDate: '2026-03-10',
+      totalOrders: 5,
+      totalSpent: 28900
+    },
+    {
+      id: 'usr-cust-3',
+      fullName: 'Arjun Mehta',
+      email: 'arjun.mehta@fashion.in',
+      phone: '+91 91234 56789',
+      role: 'Customer' as const,
+      status: 'Active' as const,
+      city: 'Mumbai',
+      joinDate: '2026-05-22',
+      totalOrders: 2,
+      totalSpent: 8490
+    },
+    {
+      id: 'usr-cust-4',
+      fullName: 'Ananya Sharma',
+      email: 'ananya.s@gmail.com',
+      phone: '+91 99887 76655',
+      role: 'Customer' as const,
+      status: 'Active' as const,
+      city: 'Bangalore',
+      joinDate: '2026-06-04',
+      totalOrders: 1,
+      totalSpent: 3499
     }
+  ];
+
+  const [userAccounts, setUserAccounts] = useState(() => {
+    const saved = localStorage.getItem('zapin_admin_user_accounts');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) { return initialUserAccountsList; }
+    }
+    return initialUserAccountsList;
   });
 
-  if (customersMap.size === 0) {
-    customersMap.set('pantje3@gmail.com', {
-      email: 'pantje3@gmail.com',
-      fullName: 'Admin User (You)',
-      phone: '+91 98765 43210',
-      city: 'Seoul / Delhi',
-      totalOrders: 3,
-      totalSpent: 12499,
-      lastOrderDate: '2026-07-24'
-    });
-    customersMap.set('minah.park@seoulstyle.kr', {
-      email: 'minah.park@seoulstyle.kr',
-      fullName: 'Min-ah Park',
-      phone: '+82 10 4321 8765',
-      city: 'Gangnam, Seoul',
-      totalOrders: 5,
-      totalSpent: 28900,
-      lastOrderDate: '2026-07-20'
-    });
-    customersMap.set('arjun.mehta@fashion.in', {
-      email: 'arjun.mehta@fashion.in',
-      fullName: 'Arjun Mehta',
-      phone: '+91 91234 56789',
-      city: 'Mumbai',
-      totalOrders: 2,
-      totalSpent: 8490,
-      lastOrderDate: '2026-07-18'
-    });
-  }
+  React.useEffect(() => {
+    localStorage.setItem('zapin_admin_user_accounts', JSON.stringify(userAccounts));
+  }, [userAccounts]);
 
-  const customersList = Array.from(customersMap.values()).filter((c) =>
-    c.fullName.toLowerCase().includes(customerSearch.toLowerCase()) ||
-    c.email.toLowerCase().includes(customerSearch.toLowerCase()) ||
-    c.city.toLowerCase().includes(customerSearch.toLowerCase())
-  );
+  const [userSearchQuery, setUserSearchQuery] = useState('');
+  const [userRoleFilter, setUserRoleFilter] = useState<'All' | 'Admins' | 'VIPs' | 'Customers' | 'Suspended'>('All');
+  const [isAddUserOpen, setIsAddUserOpen] = useState(false);
+  const [userActionToast, setUserActionToast] = useState('');
+
+  // Add User Form State
+  const [newUName, setNewUName] = useState('');
+  const [newUEmail, setNewUEmail] = useState('');
+  const [newUPhone, setNewUPhone] = useState('');
+  const [newURole, setNewURole] = useState<'Admin' | 'VIP Customer' | 'Customer' | 'Store Staff'>('Customer');
+  const [newUCity, setNewUCity] = useState('Seoul');
+
+  const handleCreateUser = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newUName.trim() && newUEmail.trim()) {
+      const newUser = {
+        id: 'usr-' + Date.now(),
+        fullName: newUName.trim(),
+        email: newUEmail.trim().toLowerCase(),
+        phone: newUPhone.trim() || '+91 90000 00000',
+        role: newURole,
+        status: 'Active' as const,
+        city: newUCity.trim() || 'Seoul',
+        joinDate: new Date().toISOString().split('T')[0],
+        totalOrders: 0,
+        totalSpent: 0
+      };
+      setUserAccounts((prev: any[]) => [newUser, ...prev]);
+      setNewUName('');
+      setNewUEmail('');
+      setNewUPhone('');
+      setIsAddUserOpen(false);
+      setUserActionToast(`Created user account for ${newUser.fullName} (${newUser.role})`);
+      setTimeout(() => setUserActionToast(''), 3500);
+    }
+  };
+
+  const handleToggleUserRole = (id: string) => {
+    setUserAccounts((prev: any[]) =>
+      prev.map((u) => {
+        if (u.id === id) {
+          if (u.role === 'Super Admin') return u;
+          const nextRole = u.role === 'Admin' ? 'Customer' : 'Admin';
+          setUserActionToast(`Updated ${u.fullName}'s role to ${nextRole}`);
+          setTimeout(() => setUserActionToast(''), 3000);
+          return { ...u, role: nextRole };
+        }
+        return u;
+      })
+    );
+  };
+
+  const handleToggleUserStatus = (id: string) => {
+    setUserAccounts((prev: any[]) =>
+      prev.map((u) => {
+        if (u.id === id) {
+          if (u.role === 'Super Admin') return u;
+          const nextStatus = u.status === 'Active' ? 'Suspended' : 'Active';
+          setUserActionToast(`Account status for ${u.fullName} changed to ${nextStatus}`);
+          setTimeout(() => setUserActionToast(''), 3000);
+          return { ...u, status: nextStatus };
+        }
+        return u;
+      })
+    );
+  };
+
+  const handleSendResetEmail = (email: string, name: string) => {
+    setUserActionToast(`Password reset email link sent to ${name} (${email})`);
+    setTimeout(() => setUserActionToast(''), 3500);
+  };
+
+  const handleDeleteUserAccount = (id: string, name: string) => {
+    setUserAccounts((prev: any[]) => prev.filter((u) => u.id !== id));
+    setUserActionToast(`User account for ${name} removed.`);
+    setTimeout(() => setUserActionToast(''), 3000);
+  };
+
+  const filteredUsersList = userAccounts.filter((u) => {
+    const matchesSearch =
+      u.fullName.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+      u.email.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+      u.phone.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+      u.city.toLowerCase().includes(userSearchQuery.toLowerCase());
+
+    if (!matchesSearch) return false;
+
+    if (userRoleFilter === 'Admins') return u.role === 'Admin' || u.role === 'Super Admin';
+    if (userRoleFilter === 'VIPs') return u.role === 'VIP Customer';
+    if (userRoleFilter === 'Customers') return u.role === 'Customer';
+    if (userRoleFilter === 'Suspended') return u.status === 'Suspended';
+    return true;
+  });
 
   const filteredProducts = products.filter((p) =>
     p.title.toLowerCase().includes(productSearch.toLowerCase()) ||
@@ -330,7 +427,7 @@ export const AdminPanel: React.FC = () => {
     { id: 'dashboard', label: 'Analytics & Overview', icon: LayoutDashboard },
     { id: 'products', label: 'Product Catalog', icon: Package, count: products.length },
     { id: 'orders', label: 'Order Fulfillment', icon: ShoppingBag, count: orders.length },
-    { id: 'customers', label: 'Customer Directory', icon: Users, count: customersMap.size },
+    { id: 'customers', label: 'Users & Accounts', icon: Users, count: userAccounts.length },
     { id: 'ads', label: 'Ads & Marketing', icon: Megaphone, count: activeAdsCount },
     { id: 'inventory', label: 'Stock Inventory', icon: Layers, count: lowStockCount },
     { id: 'coupons', label: 'Promo Coupons', icon: Tag, count: coupons.length },
