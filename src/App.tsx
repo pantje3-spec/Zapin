@@ -6,6 +6,9 @@ import { WhatsAppButton } from './components/WhatsAppButton';
 import { SearchOverlay } from './components/SearchOverlay';
 import { CartDrawer } from './components/CartDrawer';
 import { SizeGuideModal } from './components/SizeGuideModal';
+import { WebsiteAdWidget } from './components/WebsiteAdWidget';
+import { AdNetworkBanner } from './components/AdNetworkBanner';
+import { GlobalBodyAdScript } from './components/GlobalBodyAdScript';
 
 import { HomePage } from './pages/HomePage';
 import { ShopPage } from './pages/ShopPage';
@@ -90,6 +93,9 @@ const AppContent: React.FC = () => {
       <CartDrawer />
       <SizeGuideModal />
       <WhatsAppButton />
+      <WebsiteAdWidget />
+      <GlobalBodyAdScript />
+      {!isAdminView && <AdNetworkBanner position="anchor" />}
     </div>
   );
 };

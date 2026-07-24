@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { SlidersHorizontal, Search, ArrowUpDown, Grid, Check, X } from 'lucide-react';
+import { SlidersHorizontal, Search, ArrowUpDown, Grid, Check, X, Megaphone, Sparkles, Tag, Copy, Zap, ArrowRight } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { EmptyProductState } from '../components/EmptyProductState';
 import { ProductCategory, ProductSize } from '../types';
+import { AdNetworkBanner } from '../components/AdNetworkBanner';
 
 export const ShopPage: React.FC = () => {
   const {
@@ -12,13 +13,24 @@ export const ShopPage: React.FC = () => {
     setSelectedProductId,
     setCurrentPage,
     searchQuery,
-    setSearchQuery
+    setSearchQuery,
+    adCampaigns
   } = useStore();
 
   const [selectedSize, setSelectedSize] = useState<ProductSize | 'all'>('all');
   const [maxPrice, setMaxPrice] = useState<number>(20000);
   const [sortBy, setSortBy] = useState<'newest' | 'price-low' | 'price-high'>('newest');
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
+
+  const activeAds = adCampaigns.filter((ad) => ad.status === 'active');
+  const shopPageAd = activeAds.find((ad) => ad.platform.toLowerCase().includes('google') || ad.platform.toLowerCase().includes('meta') || ad.platform.toLowerCase().includes('banner')) || activeAds[0];
+
+  const handleCopyPromo = (code: string) => {
+    navigator.clipboard.writeText(code);
+    setCopiedCode(code);
+    setTimeout(() => setCopiedCode(null), 2500);
+  };
 
   // Filter products
   const filteredProducts = products.filter((p) => {
@@ -116,6 +128,70 @@ export const ShopPage: React.FC = () => {
             </button>
           ))}
         </div>
+
+        {/* FEATURED SPONSORED WEBSITE ADVERTISEMENT BANNER (Synced from Admin) */}
+        {shopPageAd && (
+          <div className="mt-8 bg-neutral-950 text-white rounded-2xl overflow-hidden border border-neutral-800 shadow-xl relative font-mono">
+            <div className="grid grid-cols-1 md:grid-cols-3 items-center">
+              <div className="relative h-48 md:h-full min-h-[180px] bg-neutral-900">
+                <img
+                  src={shopPageAd.imageUrl || 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=800&auto=format&fit=crop'}
+                  alt={shopPageAd.title}
+                  referrerPolicy="no-referrer"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-neutral-950/20" />
+                <span className="absolute top-3 left-3 bg-amber-400 text-neutral-950 text-[10px] font-bold uppercase px-2.5 py-1 rounded-md shadow-md flex items-center gap-1">
+                  <Megaphone className="w-3 h-3" /> SPONSORED AD
+                </span>
+              </div>
+
+              <div className="md:col-span-2 p-6 space-y-3">
+                <div className="flex items-center gap-2 text-[11px] text-amber-300">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                  <span className="uppercase font-bold tracking-wider">{shopPageAd.platform} — OFFICIAL CAMPAIGN</span>
+                </div>
+
+                <h3 className="text-lg sm:text-xl font-bold font-serif text-white tracking-wide">
+                  {shopPageAd.title}
+                </h3>
+
+                <p className="text-xs text-neutral-300 font-sans leading-relaxed">
+                  Special promotional campaign drop live on the store. Enjoy additional savings with active offer codes at checkout.
+                </p>
+
+                <div className="flex flex-wrap items-center justify-between gap-4 pt-2 border-t border-neutral-800">
+                  {shopPageAd.promoCode ? (
+                    <div className="flex items-center gap-2 bg-neutral-900 border border-neutral-800 px-3 py-1.5 rounded-xl">
+                      <span className="text-[10px] text-neutral-400 uppercase">Promo Code:</span>
+                      <strong className="text-amber-300 text-xs font-bold">{shopPageAd.promoCode}</strong>
+                      <button
+                        onClick={() => handleCopyPromo(shopPageAd.promoCode!)}
+                        className="ml-2 text-neutral-400 hover:text-white"
+                        title="Copy Promo Code"
+                      >
+                        {copiedCode === shopPageAd.promoCode ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
+                  ) : (
+                    <span className="text-xs text-emerald-400 font-bold">✓ Live On Storefront</span>
+                  )}
+
+                  <button
+                    onClick={() => {
+                      setSelectedCategoryFilter('all');
+                      setMaxPrice(20000);
+                    }}
+                    className="bg-amber-400 hover:bg-amber-300 text-neutral-950 px-5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-md"
+                  >
+                    <span>Shop Active Ad Collection</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -199,11 +275,16 @@ export const ShopPage: React.FC = () => {
                 setSelectedSize('all');
                 setMaxPrice(20000);
               }}
-              className="text-xs font-mono text-neutral-500 underline hover:text-black"
+              className="text-xs font-mono text-neutral-500 underline hover:text-black block"
             >
               Reset Filters
             </button>
           )}
+
+          {/* Publisher Ad Network Sidebar Unit */}
+          <div className="pt-6 border-t border-neutral-200">
+            <AdNetworkBanner position="sidebar" />
+          </div>
         </div>
 
         {/* Main Product Display Area */}

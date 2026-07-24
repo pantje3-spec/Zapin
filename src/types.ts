@@ -142,3 +142,25 @@ export interface AdCampaign {
   startDate: string;
   endDate?: string;
 }
+
+export interface AdNetworkConfig {
+  enabled: boolean;
+  publisherId: string; // e.g., 'ca-pub-9842019827319203' or CPM Key
+  networkProvider: string;
+  directAdUrl: string;
+  headerBannerEnabled: boolean;
+  inFeedAdsEnabled: boolean;
+  sidebarAdsEnabled: boolean;
+  footerBannerEnabled: boolean;
+  anchorAdEnabled: boolean;
+  autoAdsEnabled: boolean;
+  bodyScriptEnabled: boolean;
+  bodyAdCode: string;
+  popupAdEnabled: boolean;
+  customScriptSnippet: string;
+  estimatedEarnings: number;
+  monthlyImpressions: number;
+  monthlyClicks: number;
+  pageRpm: number;
+}
+

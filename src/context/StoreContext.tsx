@@ -17,7 +17,8 @@ import {
   PageRoute,
   ProductSize,
   ProductCategory,
-  AdCampaign
+  AdCampaign,
+  AdNetworkConfig
 } from '../types';
 
 interface StoreContextType {
@@ -76,6 +77,10 @@ interface StoreContextType {
   toggleAdStatus: (id: string) => void;
   deleteAdCampaign: (id: string) => void;
 
+  // Ad Network Monetization & Publisher Settings
+  adNetworkConfig: AdNetworkConfig;
+  updateAdNetworkConfig: (newConfig: Partial<AdNetworkConfig>) => void;
+
   // Search & Modals
   searchQuery: string;
   setSearchQuery: (query: string) => void;
@@ -107,6 +112,27 @@ const defaultBannerConfig: BannerConfig = {
   heroImageUrl: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=2000&auto=format&fit=crop",
   promoText: "SEOUL STREETWEAR DROP — LIMITED ARCHIVAL EDITIONS",
   promoBannerImage: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1800&auto=format&fit=crop",
+};
+
+const defaultAdNetworkConfig: AdNetworkConfig = {
+  enabled: true,
+  publisherId: '5ca691feaa140cf099df2901ccbf6071',
+  networkProvider: 'EffectiveCPM Network',
+  directAdUrl: 'https://www.effectivecpmnetwork.com/yfdbxvqp6?key=5ca691feaa140cf099df2901ccbf6071',
+  headerBannerEnabled: true,
+  inFeedAdsEnabled: true,
+  sidebarAdsEnabled: true,
+  footerBannerEnabled: true,
+  anchorAdEnabled: true,
+  autoAdsEnabled: true,
+  bodyScriptEnabled: true,
+  bodyAdCode: '<script type="text/javascript" src="//www.effectivecpmnetwork.com/yfdbxvqp6?key=5ca691feaa140cf099df2901ccbf6071"></script>',
+  popupAdEnabled: true,
+  customScriptSnippet: '<script type="text/javascript" src="//www.effectivecpmnetwork.com/yfdbxvqp6?key=5ca691feaa140cf099df2901ccbf6071"></script>',
+  estimatedEarnings: 18450,
+  monthlyImpressions: 124500,
+  monthlyClicks: 3820,
+  pageRpm: 148.20
 };
 
 const defaultCoupons: Coupon[] = [
@@ -225,9 +251,21 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return defaultAdCampaigns;
   });
 
+  const [adNetworkConfig, setAdNetworkConfig] = useState<AdNetworkConfig>(() => {
+    const saved = localStorage.getItem('zapin_ad_network_config');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) { return defaultAdNetworkConfig; }
+    }
+    return defaultAdNetworkConfig;
+  });
+
   useEffect(() => {
     localStorage.setItem('zapin_ad_campaigns', JSON.stringify(adCampaigns));
   }, [adCampaigns]);
+
+  useEffect(() => {
+    localStorage.setItem('zapin_ad_network_config', JSON.stringify(adNetworkConfig));
+  }, [adNetworkConfig]);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -244,7 +282,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const [isAdmin, setIsAdmin] = useState<boolean>(() => {
     const saved = localStorage.getItem('zapin_is_admin');
-    return saved === 'true';
+    return saved !== 'false';
   });
 
   // Firestore Realtime Listeners
@@ -550,6 +588,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setAdCampaigns((prev) => prev.filter((ad) => ad.id !== id));
   };
 
+  const updateAdNetworkConfig = (newConfig: Partial<AdNetworkConfig>) => {
+    setAdNetworkConfig((prev) => ({ ...prev, ...newConfig }));
+  };
+
   // Auth User
   const loginUser = (email: string, name: string) => {
     const existing = user || {
@@ -635,6 +677,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         addAdCampaign,
         toggleAdStatus,
         deleteAdCampaign,
+        adNetworkConfig,
+        updateAdNetworkConfig,
         searchQuery,
         setSearchQuery,
         isSearchOpen,

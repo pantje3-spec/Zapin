@@ -8,7 +8,6 @@ import {
   X,
   SlidersHorizontal,
   ChevronRight,
-  ShieldAlert,
   Sparkles
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
@@ -25,8 +24,11 @@ export const Navbar: React.FC = () => {
     setIsCartOpen,
     user,
     isAdmin,
-    setIsAdmin
+    setIsAdmin,
+    adCampaigns
   } = useStore();
+
+  const activeMarqueeAd = adCampaigns.find(ad => ad.status === 'active' && ad.platform === 'Top Marquee Banner');
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -59,21 +61,22 @@ export const Navbar: React.FC = () => {
       {/* Top Announcement Bar */}
       <div className="bg-neutral-950 text-neutral-300 text-[11px] py-2 px-4 text-center font-mono tracking-widest flex items-center justify-between">
         <div className="hidden sm:block text-neutral-400">SEOUL — TOKYO — NEW YORK</div>
-        <div className="mx-auto flex items-center gap-2">
+        <div className="mx-auto flex items-center gap-2 flex-wrap justify-center">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span>COMPLIMENTARY WORLDWIDE EXPRESS SHIPPING ON ORDERS OVER ₹3,000</span>
+          {activeMarqueeAd ? (
+            <span className="flex items-center gap-2">
+              <span className="text-amber-300 font-bold uppercase">{activeMarqueeAd.title}</span>
+              {activeMarqueeAd.promoCode && (
+                <span className="bg-amber-400 text-neutral-950 px-1.5 py-0.5 rounded text-[9px] font-bold">
+                  CODE: {activeMarqueeAd.promoCode}
+                </span>
+              )}
+            </span>
+          ) : (
+            <span>COMPLIMENTARY WORLDWIDE EXPRESS SHIPPING ON ORDERS OVER ₹3,000</span>
+          )}
         </div>
-        <div className="hidden sm:flex items-center gap-3">
-          <button
-            onClick={() => {
-              setCurrentPage('admin');
-            }}
-            className="hover:text-white transition-colors flex items-center gap-1 bg-neutral-800 hover:bg-neutral-700 px-2.5 py-1 rounded text-[10px] text-amber-300 font-mono"
-          >
-            <ShieldAlert className="w-3 h-3 text-amber-400" />
-            <span>Admin Portal</span>
-          </button>
-        </div>
+        <div className="hidden sm:block text-neutral-400 text-right">EXPRESS DELIVERY</div>
       </div>
 
       {/* Main Navbar */}

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Mail, Instagram, Twitter, ShieldCheck, Truck, RefreshCw, Send, CheckCircle2 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { PageRoute } from '../types';
+import { AdNetworkBanner } from './AdNetworkBanner';
 
 export const Footer: React.FC = () => {
   const { setCurrentPage } = useStore();
@@ -26,6 +27,9 @@ export const Footer: React.FC = () => {
   return (
     <footer className="bg-neutral-950 text-neutral-300 pt-16 pb-12 border-t border-neutral-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Ad Network Live Footer Banner */}
+        <AdNetworkBanner position="footer" className="mb-10" />
+
         {/* Brand Value Pillars */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pb-12 border-b border-neutral-800 text-center md:text-left">
           <div className="flex items-center justify-center md:justify-start gap-4 p-4 rounded bg-neutral-900/50 border border-neutral-800">
