@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { ProductSize, Product } from '../types';
+import { Breadcrumb } from '../components/Breadcrumb';
 
 export const ProductDetailPage: React.FC = () => {
   const {
@@ -25,7 +26,8 @@ export const ProductDetailPage: React.FC = () => {
     setIsSizeGuideOpen,
     addProductReview,
     setCurrentPage,
-    setSelectedProductId
+    setSelectedProductId,
+    setSelectedCategoryFilter
   } = useStore();
 
   // Find selected product or use a structural template preview item if empty
@@ -110,8 +112,39 @@ export const ProductDetailPage: React.FC = () => {
     }
   };
 
+  const getCategoryLabel = (category: string) => {
+    switch (category) {
+      case 'men':
+        return "Men's Apparel";
+      case 'women':
+        return "Women's Apparel";
+      case 'new-arrivals':
+        return 'New Arrivals';
+      case 'unisex':
+        return 'Unisex Collection';
+      default:
+        return 'Shop All';
+    }
+  };
+
+  const breadcrumbItems = [
+    { label: 'Home', onClick: () => setCurrentPage('home') },
+    { label: 'Shop', onClick: () => { setSelectedCategoryFilter('all'); setCurrentPage('shop'); } },
+    {
+      label: getCategoryLabel(product.category),
+      onClick: () => {
+        setSelectedCategoryFilter(product.category);
+        setCurrentPage('shop');
+      }
+    },
+    { label: product.title, active: true }
+  ];
+
   return (
-    <div className="min-h-screen bg-white py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <div className="min-h-screen bg-white py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      {/* Breadcrumb Navigation */}
+      <Breadcrumb items={breadcrumbItems} className="mb-6 border-b border-neutral-100 pb-3" />
+
       {/* Template Mode Banner Alert if no products added yet */}
       {!realProduct && (
         <div className="mb-8 p-4 bg-amber-50 border border-amber-300 rounded-lg text-xs font-mono text-amber-900 flex items-center justify-between">
