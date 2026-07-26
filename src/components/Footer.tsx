@@ -3,11 +3,13 @@ import { Mail, Instagram, Twitter, ShieldCheck, Truck, RefreshCw, Send, CheckCir
 import { useStore } from '../context/StoreContext';
 import { PageRoute } from '../types';
 import { AdNetworkBanner } from './AdNetworkBanner';
+import { SitemapModal } from './SitemapModal';
 
 export const Footer: React.FC = () => {
   const { setCurrentPage } = useStore();
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [newsletterSubscribed, setNewsletterSubscribed] = useState(false);
+  const [isSitemapOpen, setIsSitemapOpen] = useState(false);
 
   const handleNewsletterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -109,10 +111,20 @@ export const Footer: React.FC = () => {
             <ul className="space-y-2 text-xs text-neutral-400">
               <li><button onClick={() => navTo('privacy')} className="hover:text-white transition-colors">Privacy Policy</button></li>
               <li><button onClick={() => navTo('terms')} className="hover:text-white transition-colors">Terms & Conditions</button></li>
+              <li>
+                <button
+                  onClick={() => setIsSitemapOpen(true)}
+                  className="text-emerald-400 hover:text-emerald-300 font-mono text-[11px] transition-colors flex items-center gap-1"
+                >
+                  🌐 XML Sitemap & SEO Schema
+                </button>
+              </li>
               <li><button onClick={() => navTo('admin')} className="text-amber-400 hover:text-amber-300 font-mono text-[11px] transition-colors">Zapin Admin Portal</button></li>
             </ul>
           </div>
         </div>
+
+        <SitemapModal isOpen={isSitemapOpen} onClose={() => setIsSitemapOpen(false)} />
 
         {/* Newsletter Section */}
         <div className="py-10 border-b border-neutral-800 flex flex-col md:flex-row items-center justify-between gap-6">

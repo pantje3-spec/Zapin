@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ShoppingBag, Trash2, ArrowRight, Tag, Plus, Minus, ArrowLeft } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
+import { AdNetworkBanner } from '../components/AdNetworkBanner';
 
 export const CartPage: React.FC = () => {
   const {
@@ -56,8 +57,11 @@ export const CartPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-      <div className="border-b border-neutral-200 pb-6 mb-8 flex items-center justify-between">
+    <div className="min-h-screen bg-white py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8">
+      {/* Top Publisher Ad Banner */}
+      <AdNetworkBanner position="header" />
+
+      <div className="border-b border-neutral-200 pb-6 flex items-center justify-between">
         <div>
           <span className="text-xs font-mono tracking-widest text-neutral-500 uppercase">
             SHOPPING BAG SUMMARY
@@ -213,6 +217,9 @@ export const CartPage: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* Footer Publisher Ad Network Unit */}
+      <AdNetworkBanner position="footer" className="mt-8" />
     </div>
   );
 };

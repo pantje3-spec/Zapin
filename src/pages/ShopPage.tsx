@@ -5,6 +5,7 @@ import { EmptyProductState } from '../components/EmptyProductState';
 import { ProductCategory, ProductSize } from '../types';
 import { AdNetworkBanner } from '../components/AdNetworkBanner';
 import { Breadcrumb } from '../components/Breadcrumb';
+import { SEO } from '../components/SEO';
 
 export const ShopPage: React.FC = () => {
   const {
@@ -99,6 +100,15 @@ export const ShopPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <SEO
+        title="Shop Korean Apparel & Streetwear Catalog | Zapin"
+        description="Discover Zapin's complete catalog of high-street Korean fashion, wool blazers, men's & women's apparel, and exclusive Seongsu designer arrivals."
+        keywords="Shop Zapin, Korean clothes shop, oversized blazers, Korean streetwear, women clothing, men fashion"
+        breadcrumbItems={[
+          { name: 'Home', url: window.location.origin },
+          { name: 'Shop All', url: window.location.href }
+        ]}
+      />
       {/* Breadcrumb Navigation */}
       <Breadcrumb items={breadcrumbItems} className="mb-6 border-b border-neutral-100 pb-3" />
 

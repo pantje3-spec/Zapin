@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { Order } from '../types';
+import { AdNetworkBanner } from '../components/AdNetworkBanner';
 
 export const CheckoutPage: React.FC = () => {
   const { cart, cartSubtotal, cartDiscount, cartTotal, placeOrder, setCurrentPage } = useStore();
@@ -138,8 +139,11 @@ export const CheckoutPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-      <div className="border-b border-neutral-200 pb-6 mb-8">
+    <div className="min-h-screen bg-white py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8">
+      {/* Top Ad Unit */}
+      <AdNetworkBanner position="header" />
+
+      <div className="border-b border-neutral-200 pb-6">
         <span className="text-xs font-mono tracking-widest text-neutral-500 uppercase">
           SECURE CHECKOUT
         </span>
@@ -422,6 +426,9 @@ export const CheckoutPage: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Footer Ad Banner */}
+      <AdNetworkBanner position="footer" className="mt-8" />
     </div>
   );
 };

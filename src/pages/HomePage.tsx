@@ -3,6 +3,7 @@ import { ArrowRight, Sparkles, Shield, Eye, Instagram, ChevronRight, Layers, Meg
 import { useStore } from '../context/StoreContext';
 import { EmptyProductState } from '../components/EmptyProductState';
 import { AdNetworkBanner } from '../components/AdNetworkBanner';
+import { SEO } from '../components/SEO';
 
 export const HomePage: React.FC = () => {
   const { setCurrentPage, setSelectedCategoryFilter, bannerConfig, products, setSelectedProductId, adCampaigns, adNetworkConfig } = useStore();
@@ -88,6 +89,11 @@ export const HomePage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      <SEO
+        title="Zapin | Premium Korean Fashion & High-Street Luxury Apparel"
+        description="Explore luxury Korean streetwear, oversized trench blazers, designer knitwear, and Seongsu high-street fashion collections at Zapin. Express worldwide shipping."
+        keywords="Zapin, Korean fashion, oversized blazer, Seongsu streetwear, luxury apparel, Korean clothing store, Zapin Seoul"
+      />
       {/* Hero Banner */}
       <section className="relative h-[85vh] min-h-[550px] max-h-[850px] bg-neutral-950 overflow-hidden flex items-center">
         <div className="absolute inset-0 z-0 opacity-60">

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Search, Package, CheckCircle2, Clock, Truck, Home, MapPin } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
+import { SEO } from '../components/SEO';
+import { AdNetworkBanner } from '../components/AdNetworkBanner';
 
 export const OrderTrackingPage: React.FC = () => {
   const { orders } = useStore();
@@ -30,6 +32,15 @@ export const OrderTrackingPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white py-12 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto space-y-8">
+      <SEO
+        title="Track Your Order & Express Shipment | Zapin"
+        description="Track live logistics, Korean air freight delivery status, and package route for your Zapin order."
+        keywords="Zapin order tracking, track Zapin package, Korean fashion shipment"
+      />
+      
+      {/* Top Publisher Ad Banner */}
+      <AdNetworkBanner position="header" />
+
       <div className="text-center space-y-2">
         <span className="text-xs font-mono tracking-widest text-neutral-500 uppercase">
           LOGISTICS & DELIVERY TRACKER
@@ -135,6 +146,9 @@ export const OrderTrackingPage: React.FC = () => {
           )}
         </div>
       )}
+
+      {/* Footer Publisher Ad Network Unit */}
+      <AdNetworkBanner position="footer" className="mt-8" />
     </div>
   );
 };

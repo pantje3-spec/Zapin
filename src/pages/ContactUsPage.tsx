@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Send, CheckCircle2 } from 'lucide-react';
+import { SEO } from '../components/SEO';
+import { AdNetworkBanner } from '../components/AdNetworkBanner';
 
 export const ContactUsPage: React.FC = () => {
   const [name, setName] = useState('');
@@ -20,6 +22,14 @@ export const ContactUsPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white py-16 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto space-y-12">
+      <SEO
+        title="Contact Us & Client Concierge | Zapin"
+        description="Contact Zapin's client service team for sizing assistance, order support, and atelier inquiries."
+        keywords="Contact Zapin, Zapin support, Zapin customer care, Zapin email"
+      />
+      {/* Top Banner Ad */}
+      <AdNetworkBanner position="header" />
+
       <div className="text-center space-y-2">
         <span className="text-xs font-mono tracking-widest text-neutral-500 uppercase">
           CLIENT CONCIERGE
@@ -119,6 +129,9 @@ export const ContactUsPage: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Footer Publisher Ad Unit */}
+      <AdNetworkBanner position="footer" className="mt-8" />
     </div>
   );
 };

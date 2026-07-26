@@ -3,6 +3,7 @@ import { useStore } from '../context/StoreContext';
 import { EmptyProductState } from '../components/EmptyProductState';
 import { Breadcrumb } from '../components/Breadcrumb';
 import { AdNetworkBanner } from '../components/AdNetworkBanner';
+import { SEO } from '../components/SEO';
 
 export const NewArrivalsCategoryPage: React.FC = () => {
   const { products, setSelectedProductId, setCurrentPage } = useStore();
@@ -17,6 +18,11 @@ export const NewArrivalsCategoryPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <SEO
+        title="New Drops & Autumn/Winter Arrivals | Zapin Seoul"
+        description="Be the first to wear the latest Seongsu fashion releases, limited archival drops, and runway outerwear."
+        keywords="New drops Zapin, latest Korean fashion, new arrivals clothes, Zapin Seoul new collection"
+      />
       {/* Breadcrumb Navigation */}
       <Breadcrumb items={breadcrumbItems} className="mb-6 border-b border-neutral-100 pb-3" />
 
@@ -55,30 +61,37 @@ export const NewArrivalsCategoryPage: React.FC = () => {
         />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {newProducts.map((p) => (
-            <div
-              key={p.id}
-              onClick={() => {
-                setSelectedProductId(p.id);
-                setCurrentPage('product-detail');
-              }}
-              className="group cursor-pointer border border-neutral-200 rounded p-3 hover:border-black transition-all bg-white"
-            >
-              <div className="aspect-3/4 overflow-hidden rounded bg-neutral-100 mb-3 relative">
-                <img
-                  src={p.images[0] || 'https://images.unsplash.com/photo-1485230895905-ec40ba36b9bc?q=80&w=400'}
-                  alt={p.title}
-                  referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
+          {newProducts.map((p, idx) => (
+            <React.Fragment key={p.id}>
+              <div
+                onClick={() => {
+                  setSelectedProductId(p.id);
+                  setCurrentPage('product-detail');
+                }}
+                className="group cursor-pointer border border-neutral-200 rounded p-3 hover:border-black transition-all bg-white"
+              >
+                <div className="aspect-3/4 overflow-hidden rounded bg-neutral-100 mb-3 relative">
+                  <img
+                    src={p.images[0] || 'https://images.unsplash.com/photo-1485230895905-ec40ba36b9bc?q=80&w=400'}
+                    alt={p.title}
+                    referrerPolicy="no-referrer"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                </div>
+                <h4 className="text-xs font-semibold text-neutral-900 group-hover:underline">
+                  {p.title}
+                </h4>
+                <p className="text-xs font-mono font-bold text-neutral-900 mt-1">
+                  ₹{p.price.toLocaleString('en-IN')}
+                </p>
               </div>
-              <h4 className="text-xs font-semibold text-neutral-900 group-hover:underline">
-                {p.title}
-              </h4>
-              <p className="text-xs font-mono font-bold text-neutral-900 mt-1">
-                ₹{p.price.toLocaleString('en-IN')}
-              </p>
-            </div>
+
+              {(idx + 1) % 4 === 0 && (
+                <div className="col-span-1 sm:col-span-2 lg:col-span-4 my-2">
+                  <AdNetworkBanner position="in-feed" />
+                </div>
+              )}
+            </React.Fragment>
           ))}
         </div>
       )}

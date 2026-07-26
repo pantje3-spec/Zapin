@@ -24,6 +24,7 @@ import { useStore } from '../context/StoreContext';
 import { ProductSize, Product, Review } from '../types';
 import { Breadcrumb } from '../components/Breadcrumb';
 import { AdNetworkBanner } from '../components/AdNetworkBanner';
+import { SEO } from '../components/SEO';
 
 export const ProductDetailPage: React.FC = () => {
   const {
@@ -251,6 +252,29 @@ export const ProductDetailPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <SEO
+        title={`${product.title} | Zapin Seoul`}
+        description={`${product.description.slice(0, 155)}... Buy ${product.title} at ₹${product.price.toLocaleString('en-IN')}. Free shipping & 14-day exchange.`}
+        keywords={`Zapin ${product.title}, Korean fashion, ${product.category} clothing, buy ${product.title}`}
+        ogImage={product.images[0]}
+        ogType="product"
+        productData={{
+          name: product.title,
+          description: product.description,
+          image: product.images[0],
+          price: product.price,
+          currency: 'INR',
+          category: product.category,
+          ratingValue: Number(avgRatingFormatted),
+          reviewCount: totalReviews
+        }}
+        breadcrumbItems={[
+          { name: 'Home', url: window.location.origin },
+          { name: 'Shop', url: `${window.location.origin}/?page=shop` },
+          { name: product.category.toUpperCase(), url: `${window.location.origin}/?category=${product.category}` },
+          { name: product.title, url: window.location.href }
+        ]}
+      />
       {/* Breadcrumb Navigation */}
       <Breadcrumb items={breadcrumbItems} className="mb-6 border-b border-neutral-100 pb-3" />
 
@@ -920,6 +944,9 @@ export const ProductDetailPage: React.FC = () => {
         </div>
 
       </section>
+
+      {/* Footer Publisher Ad Network Unit */}
+      <AdNetworkBanner position="footer" className="mt-12" />
     </div>
   );
 };

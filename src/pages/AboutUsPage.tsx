@@ -1,9 +1,19 @@
 import React from 'react';
 import { Sparkles, ShieldCheck, HeartHandshake, MapPin } from 'lucide-react';
+import { SEO } from '../components/SEO';
+import { AdNetworkBanner } from '../components/AdNetworkBanner';
 
 export const AboutUsPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-white py-16 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto space-y-16">
+      <SEO
+        title="About Us | Zapin Seoul Atelier"
+        description="Learn about Zapin's Seongsu-dong atelier, signature Korean drop-shoulder tailoring, and archival luxury craftsmanship."
+        keywords="About Zapin, Zapin story, Seongsu fashion atelier, Korean fashion brand"
+      />
+      {/* Top Banner Ad */}
+      <AdNetworkBanner position="header" />
+
       {/* Hero Header */}
       <div className="text-center space-y-4">
         <span className="text-xs font-mono tracking-[0.25em] text-neutral-500 uppercase">
@@ -64,6 +74,9 @@ export const AboutUsPage: React.FC = () => {
           </p>
         </div>
       </div>
+
+      {/* Footer Publisher Ad Unit */}
+      <AdNetworkBanner position="footer" className="mt-8" />
     </div>
   );
 };
