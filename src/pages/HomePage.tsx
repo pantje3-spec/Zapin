@@ -1,14 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowRight, Sparkles, Shield, Eye, Instagram, ChevronRight, Layers, Megaphone, Zap, Tag, X, ExternalLink, Check, Copy } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { EmptyProductState } from '../components/EmptyProductState';
 import { AdNetworkBanner } from '../components/AdNetworkBanner';
 
 export const HomePage: React.FC = () => {
-  const { setCurrentPage, setSelectedCategoryFilter, bannerConfig, products, setSelectedProductId, adCampaigns } = useStore();
+  const { setCurrentPage, setSelectedCategoryFilter, bannerConfig, products, setSelectedProductId, adCampaigns, adNetworkConfig } = useStore();
 
   const [isPopupClosed, setIsPopupClosed] = useState(false);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!adNetworkConfig.nativeBannerEnabled || !adNetworkConfig.nativeBannerCode) return;
+
+    const slotContainer = document.getElementById('zapin-native-banner-slot');
+    if (!slotContainer) return;
+
+    slotContainer.innerHTML = '';
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'w-full flex flex-col items-center justify-center min-h-[120px] my-2';
+    wrapper.innerHTML = adNetworkConfig.nativeBannerCode;
+
+    const scriptElements = wrapper.querySelectorAll('script');
+    scriptElements.forEach((oldScript) => {
+      const newScript = document.createElement('script');
+      Array.from(oldScript.attributes).forEach((attr) => newScript.setAttribute(attr.name, attr.value));
+      if (oldScript.src) {
+        newScript.src = oldScript.src;
+      } else {
+        newScript.textContent = oldScript.textContent;
+      }
+      document.body.appendChild(newScript);
+      oldScript.remove();
+    });
+
+    slotContainer.appendChild(wrapper);
+  }, [adNetworkConfig.nativeBannerEnabled, adNetworkConfig.nativeBannerCode]);
 
   const activeAds = adCampaigns.filter((ad) => ad.status === 'active');
   const activePopupAd = activeAds.find((ad) => ad.platform === 'Popup Promo Ad' || ad.platform.includes('Popup'));
@@ -150,6 +178,11 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
+      {/* In-Feed Publisher Ad Slot */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <AdNetworkBanner position="in-feed" />
+      </div>
+
       {/* Category Cards Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 border-b border-neutral-200 pb-6">
@@ -204,6 +237,11 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
+      {/* In-Feed Live Ad Network Banner Slot */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <AdNetworkBanner position="in-feed" />
+      </div>
+
       {/* Promotional Banner */}
       <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="relative rounded-xl overflow-hidden bg-neutral-950 text-white p-8 sm:p-14 flex flex-col md:flex-row items-center justify-between gap-8 border border-neutral-800 shadow-2xl">
@@ -242,86 +280,6 @@ export const HomePage: React.FC = () => {
           </div>
         </div>
       </section>
-
-      {/* LIVE PROMOTIONAL AD CAMPAIGNS & SPONSORED DROPS (Managed via Admin Portal) */}
-      {activeAds.length > 0 && (
-        <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-neutral-200">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-8">
-            <div>
-              <div className="inline-flex items-center gap-1.5 text-xs font-mono tracking-widest text-amber-600 font-bold uppercase">
-                <Megaphone className="w-4 h-4 text-amber-500" />
-                <span>STOREFRONT ADVERTS & CAMPAIGNS</span>
-              </div>
-              <h2 className="text-2xl font-light tracking-tight text-neutral-950 font-serif uppercase mt-1">
-                Active Promotional Campaigns ({activeAds.length})
-              </h2>
-            </div>
-            <span className="text-xs font-mono text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full font-bold self-start sm:self-center">
-              ● Live Admin Synced Ads
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {activeAds.map((ad) => (
-              <div
-                key={ad.id}
-                className="bg-neutral-950 text-white rounded-2xl overflow-hidden border border-neutral-800 shadow-xl flex flex-col justify-between group hover:border-amber-400/50 transition-all"
-              >
-                {/* Ad Header Image */}
-                <div className="relative h-48 overflow-hidden bg-neutral-900">
-                  <img
-                    src={ad.imageUrl || 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=800&auto=format&fit=crop'}
-                    alt={ad.title}
-                    referrerPolicy="no-referrer"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/20 to-transparent" />
-
-                  <span className="absolute top-3 left-3 bg-neutral-950/80 backdrop-blur-md text-amber-300 border border-amber-500/30 px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold uppercase">
-                    {ad.platform}
-                  </span>
-
-                  {ad.promoCode && (
-                    <button
-                      onClick={() => handleCopyPromo(ad.promoCode!)}
-                      className="absolute top-3 right-3 bg-amber-400 text-neutral-950 px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold flex items-center gap-1 shadow-lg hover:bg-amber-300 transition-colors"
-                    >
-                      {copiedCode === ad.promoCode ? <Check className="w-3 h-3" /> : <Tag className="w-3 h-3" />}
-                      <span>{copiedCode === ad.promoCode ? 'COPIED!' : ad.promoCode}</span>
-                    </button>
-                  )}
-                </div>
-
-                {/* Ad Content */}
-                <div className="p-5 space-y-3 font-mono">
-                  <h3 className="font-bold text-white text-sm leading-snug group-hover:text-amber-300 transition-colors">
-                    {ad.title}
-                  </h3>
-
-                  <p className="text-neutral-400 text-xs font-sans line-clamp-2">
-                    Exclusive campaign drop synced directly from the Zapin Admin Marketing Hub. Active offer applies on selected items.
-                  </p>
-
-                  <div className="pt-2 flex items-center justify-between border-t border-neutral-900 text-xs">
-                    <span className="text-neutral-500 text-[10px]">Budget: ₹{ad.budget.toLocaleString('en-IN')}</span>
-
-                    <button
-                      onClick={() => {
-                        setSelectedCategoryFilter('all');
-                        setCurrentPage('shop');
-                      }}
-                      className="bg-white text-neutral-950 hover:bg-amber-400 font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 transition-all"
-                    >
-                      <span>Explore Ad Offer</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
 
       {/* Featured Products Section (Empty State or List of Products added via Admin) */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-neutral-200">
@@ -378,6 +336,42 @@ export const HomePage: React.FC = () => {
         )}
       </section>
 
+      {/* Footer & Native Banner Ad Slot */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-4">
+        <AdNetworkBanner position="footer" />
+
+        {/* Native Banner Container Slot */}
+        {adNetworkConfig.nativeBannerEnabled && (
+          <div className="bg-neutral-950 border border-neutral-800 rounded-2xl p-6 text-white font-mono space-y-3">
+            <div className="flex items-center justify-between text-xs text-neutral-400 border-b border-neutral-800 pb-2">
+              <span className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-amber-400" />
+                <strong className="text-amber-300 uppercase">SPONSORED NATIVE BANNER AD</strong>
+              </span>
+              <span className="text-[10px] bg-neutral-900 border border-neutral-800 px-2.5 py-0.5 rounded text-sky-300">
+                Adsterra / AdSense Native Unit
+              </span>
+            </div>
+
+            <div id="zapin-native-banner-slot" className="min-h-[100px] flex items-center justify-center bg-neutral-900/50 rounded-xl p-4 text-center">
+              <div className="space-y-2">
+                <p className="text-xs text-neutral-300 font-sans">
+                  Native Banner Ad Space — Automatically rendered via Admin Publisher Tag Snippet
+                </p>
+                <a
+                  href={adNetworkConfig.smartlinkUrl || adNetworkConfig.directAdUrl || "https://www.effectivecpmnetwork.com/p6301rkg6?key=5ae6deb02a6effe7cd9e0b09f722e6a2"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block bg-amber-400 text-neutral-950 font-bold px-4 py-2 rounded-xl text-xs hover:bg-amber-300 transition-colors"
+                >
+                  Explore Sponsored Offer
+                </a>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* Instagram Editorial Gallery */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-neutral-200">
         <div className="text-center space-y-2 mb-10">
@@ -407,86 +401,6 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* POPUP PROMO AD MODAL (Interactive Store Entrance Advertisement) */}
-      {activePopupAd && !isPopupClosed && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-300">
-          <div className="bg-neutral-950 border border-neutral-800 rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl relative space-y-0 text-white font-mono">
-            {/* Close Button */}
-            <button
-              onClick={() => setIsPopupClosed(true)}
-              className="absolute top-4 right-4 z-20 bg-neutral-900/80 hover:bg-neutral-800 border border-neutral-700 text-white p-2 rounded-full backdrop-blur-sm transition-all"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            {/* Modal Image Header */}
-            <div className="relative h-60 bg-neutral-900 overflow-hidden">
-              <img
-                src={activePopupAd.imageUrl || 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1000&auto=format&fit=crop'}
-                alt={activePopupAd.title}
-                referrerPolicy="no-referrer"
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/40 to-transparent" />
-              <div className="absolute bottom-4 left-6 right-6 space-y-1">
-                <span className="bg-amber-400 text-neutral-950 text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full inline-block">
-                  SPECIAL STORE ADVERTISEMENT
-                </span>
-                <h3 className="text-xl font-bold font-serif text-white tracking-wide">
-                  {activePopupAd.title}
-                </h3>
-              </div>
-            </div>
-
-            {/* Modal Body */}
-            <div className="p-6 space-y-5">
-              <p className="text-xs text-neutral-300 font-sans leading-relaxed">
-                Enjoy an exclusive promotional campaign drop available for a limited time across our Seoul archival streetwear collections.
-              </p>
-
-              {activePopupAd.promoCode && (
-                <div className="bg-neutral-900 border border-amber-500/30 rounded-2xl p-4 flex items-center justify-between">
-                  <div>
-                    <span className="text-[10px] text-neutral-400 uppercase block">Exclusive Coupon Code</span>
-                    <span className="text-base font-bold text-amber-300 tracking-wider uppercase font-mono">
-                      {activePopupAd.promoCode}
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => handleCopyPromo(activePopupAd.promoCode!)}
-                    className="bg-amber-400 text-neutral-950 hover:bg-amber-300 px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5"
-                  >
-                    {copiedCode === activePopupAd.promoCode ? (
-                      <><Check className="w-3.5 h-3.5" /> Copied!</>
-                    ) : (
-                      <><Copy className="w-3.5 h-3.5" /> Copy Code</>
-                    )}
-                  </button>
-                </div>
-              )}
-
-              <div className="flex gap-3 pt-2">
-                <button
-                  onClick={() => setIsPopupClosed(true)}
-                  className="flex-1 bg-neutral-900 text-neutral-400 hover:text-white border border-neutral-800 py-3 rounded-xl text-xs font-bold transition-all"
-                >
-                  Dismiss Ad
-                </button>
-                <button
-                  onClick={() => {
-                    setIsPopupClosed(true);
-                    setSelectedCategoryFilter('all');
-                    setCurrentPage('shop');
-                  }}
-                  className="flex-1 bg-amber-400 text-neutral-950 hover:bg-amber-300 py-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-lg shadow-amber-400/10"
-                >
-                  <Zap className="w-4 h-4 fill-current" /> Shop Offer Now
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

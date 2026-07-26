@@ -158,6 +158,17 @@ export interface AdNetworkConfig {
   bodyAdCode: string;
   popupAdEnabled: boolean;
   customScriptSnippet: string;
+  // New Ad Format Configurations: Native Banner, Popunder, Smartlink, Social Bar
+  nativeBannerEnabled: boolean;
+  nativeBannerCode: string;
+  popunderEnabled: boolean;
+  popunderCode: string;
+  smartlinkEnabled: boolean;
+  smartlinkUrl: string;
+  socialBarEnabled: boolean;
+  socialBarCode: string;
+  autoRefreshEnabled?: boolean;
+  autoRefreshInterval?: number; // In seconds (e.g., 30)
   estimatedEarnings: number;
   monthlyImpressions: number;
   monthlyClicks: number;

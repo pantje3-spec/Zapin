@@ -1,14 +1,28 @@
 import React from 'react';
 import { useStore } from '../context/StoreContext';
 import { EmptyProductState } from '../components/EmptyProductState';
+import { Breadcrumb } from '../components/Breadcrumb';
+import { AdNetworkBanner } from '../components/AdNetworkBanner';
 
 export const NewArrivalsCategoryPage: React.FC = () => {
   const { products, setSelectedProductId, setCurrentPage } = useStore();
 
   const newProducts = products.filter((p) => p.category === 'new-arrivals' || p.tags?.includes('new'));
 
+  const breadcrumbItems = [
+    { label: 'Home', onClick: () => setCurrentPage('home') },
+    { label: 'Shop', onClick: () => setCurrentPage('shop') },
+    { label: 'New Arrivals', active: true }
+  ];
+
   return (
-    <div className="min-h-screen bg-white py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <div className="min-h-screen bg-white py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      {/* Breadcrumb Navigation */}
+      <Breadcrumb items={breadcrumbItems} className="mb-6 border-b border-neutral-100 pb-3" />
+
+      {/* Header Ad Slot */}
+      <AdNetworkBanner position="header" className="mb-8" />
+
       {/* Category Banner */}
       <div className="relative rounded-xl overflow-hidden bg-neutral-950 text-white p-8 sm:p-14 mb-12 border border-neutral-800">
         <div className="absolute inset-0 opacity-40">
@@ -68,6 +82,9 @@ export const NewArrivalsCategoryPage: React.FC = () => {
           ))}
         </div>
       )}
+
+      {/* Body In-Feed / Footer Ad Slot */}
+      <AdNetworkBanner position="footer" className="mt-12" />
     </div>
   );
 };

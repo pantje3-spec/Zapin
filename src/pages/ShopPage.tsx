@@ -4,6 +4,7 @@ import { useStore } from '../context/StoreContext';
 import { EmptyProductState } from '../components/EmptyProductState';
 import { ProductCategory, ProductSize } from '../types';
 import { AdNetworkBanner } from '../components/AdNetworkBanner';
+import { Breadcrumb } from '../components/Breadcrumb';
 
 export const ShopPage: React.FC = () => {
   const {
@@ -72,8 +73,38 @@ export const ShopPage: React.FC = () => {
 
   const sizesList: ProductSize[] = ['S', 'M', 'L', 'XL', 'Free Size'];
 
+  const breadcrumbItems = [
+    { label: 'Home', onClick: () => setCurrentPage('home') },
+    {
+      label: 'Shop',
+      onClick: () => setSelectedCategoryFilter('all'),
+      active: selectedCategoryFilter === 'all'
+    },
+    ...(selectedCategoryFilter !== 'all'
+      ? [
+          {
+            label:
+              selectedCategoryFilter === 'men'
+                ? "Men's Apparel"
+                : selectedCategoryFilter === 'women'
+                ? "Women's Apparel"
+                : selectedCategoryFilter === 'new-arrivals'
+                ? 'New Arrivals'
+                : selectedCategoryFilter,
+            active: true
+          }
+        ]
+      : [])
+  ];
+
   return (
-    <div className="min-h-screen bg-white py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <div className="min-h-screen bg-white py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      {/* Breadcrumb Navigation */}
+      <Breadcrumb items={breadcrumbItems} className="mb-6 border-b border-neutral-100 pb-3" />
+
+      {/* Header Ad Banner */}
+      <AdNetworkBanner position="header" className="mb-8" />
+
       {/* Shop Header */}
       <div className="border-b border-neutral-200 pb-8 mb-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -297,41 +328,49 @@ export const ShopPage: React.FC = () => {
             />
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {sortedProducts.map((p) => (
-                <div
-                  key={p.id}
-                  onClick={() => handleProductClick(p.id)}
-                  className="group cursor-pointer border border-neutral-200/80 rounded p-3 hover:border-neutral-950 transition-all bg-white hover:shadow-md"
-                >
-                  <div className="aspect-3/4 overflow-hidden rounded bg-neutral-100 mb-3 relative">
-                    <img
-                      src={p.images[0] || 'https://images.unsplash.com/photo-1516257984-b1b4d707412e?q=80&w=400'}
-                      alt={p.title}
-                      referrerPolicy="no-referrer"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <span className="absolute top-2 left-2 bg-black text-white text-[10px] font-mono uppercase px-2 py-0.5 rounded">
-                      {p.category}
-                    </span>
+              {sortedProducts.map((p, idx) => (
+                <React.Fragment key={p.id}>
+                  <div
+                    onClick={() => handleProductClick(p.id)}
+                    className="group cursor-pointer border border-neutral-200/80 rounded p-3 hover:border-neutral-950 transition-all bg-white hover:shadow-md"
+                  >
+                    <div className="aspect-3/4 overflow-hidden rounded bg-neutral-100 mb-3 relative">
+                      <img
+                        src={p.images[0] || 'https://images.unsplash.com/photo-1516257984-b1b4d707412e?q=80&w=400'}
+                        alt={p.title}
+                        referrerPolicy="no-referrer"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <span className="absolute top-2 left-2 bg-black text-white text-[10px] font-mono uppercase px-2 py-0.5 rounded">
+                        {p.category}
+                      </span>
+                    </div>
+
+                    <h4 className="text-xs font-semibold text-neutral-900 group-hover:underline">
+                      {p.title}
+                    </h4>
+
+                    <p className="text-[11px] font-mono text-neutral-500 mt-0.5">
+                      Sizes: {p.sizes.join(', ')}
+                    </p>
+
+                    <div className="flex justify-between items-center mt-3">
+                      <span className="text-xs font-mono font-bold text-neutral-950">
+                        ₹{p.price.toLocaleString('en-IN')}
+                      </span>
+                      <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">
+                        IN STOCK ({p.stockQuantity})
+                      </span>
+                    </div>
                   </div>
 
-                  <h4 className="text-xs font-semibold text-neutral-900 group-hover:underline">
-                    {p.title}
-                  </h4>
-
-                  <p className="text-[11px] font-mono text-neutral-500 mt-0.5">
-                    Sizes: {p.sizes.join(', ')}
-                  </p>
-
-                  <div className="flex justify-between items-center mt-3">
-                    <span className="text-xs font-mono font-bold text-neutral-950">
-                      ₹{p.price.toLocaleString('en-IN')}
-                    </span>
-                    <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">
-                      IN STOCK ({p.stockQuantity})
-                    </span>
-                  </div>
-                </div>
+                  {/* Insert In-Feed Ad Banner every 3 products */}
+                  {(idx + 1) % 3 === 0 && (
+                    <div className="col-span-1 sm:col-span-2 lg:col-span-3 my-2">
+                      <AdNetworkBanner position="in-feed" />
+                    </div>
+                  )}
+                </React.Fragment>
               ))}
             </div>
           )}

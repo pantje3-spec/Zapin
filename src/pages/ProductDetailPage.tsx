@@ -15,6 +15,7 @@ import {
 import { useStore } from '../context/StoreContext';
 import { ProductSize, Product } from '../types';
 import { Breadcrumb } from '../components/Breadcrumb';
+import { AdNetworkBanner } from '../components/AdNetworkBanner';
 
 export const ProductDetailPage: React.FC = () => {
   const {
@@ -144,6 +145,11 @@ export const ProductDetailPage: React.FC = () => {
     <div className="min-h-screen bg-white py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       {/* Breadcrumb Navigation */}
       <Breadcrumb items={breadcrumbItems} className="mb-6 border-b border-neutral-100 pb-3" />
+
+      {/* Product Detail Top Ad Banner */}
+      <div className="mb-8">
+        <AdNetworkBanner position="header" />
+      </div>
 
       {/* Template Mode Banner Alert if no products added yet */}
       {!realProduct && (
@@ -368,8 +374,13 @@ export const ProductDetailPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Product Detail In-Feed Ad Banner */}
+      <div className="mt-12">
+        <AdNetworkBanner position="in-feed" />
+      </div>
+
       {/* Customer Reviews Section */}
-      <section className="mt-20 pt-12 border-t border-neutral-200">
+      <section className="mt-16 pt-12 border-t border-neutral-200">
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
           <div>
             <h2 className="text-2xl font-light font-serif uppercase tracking-tight text-neutral-950">

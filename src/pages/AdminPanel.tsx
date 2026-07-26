@@ -480,7 +480,7 @@ export const AdminPanel: React.FC = () => {
     { id: 'products', label: 'Product Catalog', icon: Package, count: products.length },
     { id: 'orders', label: 'Order Fulfillment', icon: ShoppingBag, count: orders.length },
     { id: 'customers', label: 'Users & Accounts', icon: Users, count: userAccounts.length },
-    { id: 'ads', label: 'Ads & Marketing', icon: Megaphone, count: activeAdsCount },
+    { id: 'ads', label: 'Ad Networks & AdSense', icon: Globe },
     { id: 'inventory', label: 'Stock Inventory', icon: Layers, count: lowStockCount },
     { id: 'coupons', label: 'Promo Coupons', icon: Tag, count: coupons.length },
     { id: 'banners', label: 'Homepage Banners', icon: Image }
@@ -1830,36 +1830,10 @@ export const AdminPanel: React.FC = () => {
                     </button>
                   </div>
                 </div>
-
-                {/* Sub-Tab Selector Buttons */}
-                <div className="flex gap-2 border-t border-neutral-800 pt-4">
-                  <button
-                    onClick={() => setAdTabMode('monetization')}
-                    className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
-                      adTabMode === 'monetization'
-                        ? 'bg-amber-400 text-neutral-950 shadow-lg'
-                        : 'bg-neutral-900 text-neutral-400 hover:text-white border border-neutral-800'
-                    }`}
-                  >
-                    <Globe className="w-4 h-4" /> Google AdSense & Publisher Settings (Earn Money)
-                  </button>
-
-                  <button
-                    onClick={() => setAdTabMode('campaigns')}
-                    className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
-                      adTabMode === 'campaigns'
-                        ? 'bg-amber-400 text-neutral-950 shadow-lg'
-                        : 'bg-neutral-900 text-neutral-400 hover:text-white border border-neutral-800'
-                    }`}
-                  >
-                    <Megaphone className="w-4 h-4" /> Promotional Ad Campaigns & Store Drops
-                  </button>
-                </div>
               </div>
 
-              {/* MODE 1: AD NETWORK MONETIZATION & PUBLISHER CONFIG (Google AdSense) */}
-              {adTabMode === 'monetization' && (
-                <div className="space-y-6">
+              {/* AD NETWORK MONETIZATION & PUBLISHER CONFIG (Google AdSense / Adsterra) */}
+              <div className="space-y-6">
                   {/* Monetization Revenue KPIs */}
                   <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                     <div className="p-5 bg-neutral-950 border border-emerald-500/30 rounded-2xl space-y-2 relative overflow-hidden">
@@ -2001,6 +1975,158 @@ export const AdminPanel: React.FC = () => {
                           <span>{adNetworkConfig.autoAdsEnabled ? 'ON' : 'OFF'}</span>
                         </button>
                         <span className="text-[10px] text-neutral-500 mt-1 block">AI places optimal ads automatically</span>
+                      </div>
+                    </div>
+
+                    {/* Dedicated Ad Unit Formats: Native Banner, Popunder, Smartlink, Social Bar */}
+                    <div className="space-y-6 pt-4 border-t border-neutral-900">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="text-xs font-bold text-amber-300 uppercase tracking-wider font-mono flex items-center gap-2">
+                            <Zap className="w-4 h-4 text-amber-400 fill-current" /> High-Revenue Ad Formats Configuration
+                          </h4>
+                          <p className="text-[11px] text-neutral-400 font-sans mt-0.5">
+                            Set up Native Banner, Popunder, Smartlink, and Social Bar ad units provided by Adsterra, AdSense, or EffectiveCPM.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        {/* 1. NATIVE BANNER AD UNIT */}
+                        <div className="p-5 bg-neutral-900/90 border border-neutral-800 rounded-2xl space-y-3 relative">
+                          <div className="flex items-center justify-between border-b border-neutral-800 pb-2.5">
+                            <div className="flex items-center gap-2">
+                              <span className="w-2.5 h-2.5 rounded-full bg-sky-400"></span>
+                              <h5 className="text-xs font-bold text-white uppercase font-mono">1. Native Banner Ad</h5>
+                            </div>
+                            <button
+                              onClick={() => {
+                                updateAdNetworkConfig({ nativeBannerEnabled: !adNetworkConfig.nativeBannerEnabled });
+                                triggerAdminToast(`Native Banner ${!adNetworkConfig.nativeBannerEnabled ? 'Active' : 'Disabled'}`);
+                              }}
+                              className={`px-3 py-1 rounded-lg text-xs font-bold ${
+                                adNetworkConfig.nativeBannerEnabled ? 'bg-emerald-400 text-neutral-950' : 'bg-neutral-800 text-neutral-400'
+                              }`}
+                            >
+                              {adNetworkConfig.nativeBannerEnabled ? 'ACTIVE' : 'OFF'}
+                            </button>
+                          </div>
+                          <p className="text-[11px] text-neutral-400 font-sans">
+                            In-feed native banner that blends seamlessly with storefront product grids.
+                          </p>
+                          <div>
+                            <label className="text-[10px] text-neutral-400 font-mono block mb-1">Native Banner Script / Tag Code:</label>
+                            <textarea
+                              rows={2}
+                              value={adNetworkConfig.nativeBannerCode}
+                              onChange={(e) => updateAdNetworkConfig({ nativeBannerCode: e.target.value })}
+                              placeholder="Paste Native Banner <script> tag..."
+                              className="w-full bg-neutral-950 border border-neutral-800 text-sky-300 p-2.5 rounded-xl focus:outline-none focus:border-amber-400 text-xs font-mono"
+                            />
+                          </div>
+                        </div>
+
+                        {/* 2. POPUNDER AD UNIT */}
+                        <div className="p-5 bg-neutral-900/90 border border-neutral-800 rounded-2xl space-y-3 relative">
+                          <div className="flex items-center justify-between border-b border-neutral-800 pb-2.5">
+                            <div className="flex items-center gap-2">
+                              <span className="w-2.5 h-2.5 rounded-full bg-indigo-400"></span>
+                              <h5 className="text-xs font-bold text-white uppercase font-mono">2. Popunder Ad Unit</h5>
+                            </div>
+                            <button
+                              onClick={() => {
+                                updateAdNetworkConfig({ popunderEnabled: !adNetworkConfig.popunderEnabled });
+                                triggerAdminToast(`Popunder Ad ${!adNetworkConfig.popunderEnabled ? 'Active' : 'Disabled'}`);
+                              }}
+                              className={`px-3 py-1 rounded-lg text-xs font-bold ${
+                                adNetworkConfig.popunderEnabled ? 'bg-emerald-400 text-neutral-950' : 'bg-neutral-800 text-neutral-400'
+                              }`}
+                            >
+                              {adNetworkConfig.popunderEnabled ? 'ACTIVE' : 'OFF'}
+                            </button>
+                          </div>
+                          <p className="text-[11px] text-neutral-400 font-sans">
+                            Triggers full background tab / window on user interaction for maximum CPM earnings.
+                          </p>
+                          <div>
+                            <label className="text-[10px] text-neutral-400 font-mono block mb-1">Popunder Script / Tag Code:</label>
+                            <textarea
+                              rows={2}
+                              value={adNetworkConfig.popunderCode}
+                              onChange={(e) => updateAdNetworkConfig({ popunderCode: e.target.value })}
+                              placeholder="Paste Popunder <script> tag..."
+                              className="w-full bg-neutral-950 border border-neutral-800 text-indigo-300 p-2.5 rounded-xl focus:outline-none focus:border-amber-400 text-xs font-mono"
+                            />
+                          </div>
+                        </div>
+
+                        {/* 3. SMARTLINK / DIRECT LINK */}
+                        <div className="p-5 bg-neutral-900/90 border border-neutral-800 rounded-2xl space-y-3 relative">
+                          <div className="flex items-center justify-between border-b border-neutral-800 pb-2.5">
+                            <div className="flex items-center gap-2">
+                              <span className="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+                              <h5 className="text-xs font-bold text-white uppercase font-mono">3. Smartlink (Direct Link)</h5>
+                            </div>
+                            <button
+                              onClick={() => {
+                                updateAdNetworkConfig({ smartlinkEnabled: !adNetworkConfig.smartlinkEnabled });
+                                triggerAdminToast(`Smartlink ${!adNetworkConfig.smartlinkEnabled ? 'Active' : 'Disabled'}`);
+                              }}
+                              className={`px-3 py-1 rounded-lg text-xs font-bold ${
+                                adNetworkConfig.smartlinkEnabled ? 'bg-emerald-400 text-neutral-950' : 'bg-neutral-800 text-neutral-400'
+                              }`}
+                            >
+                              {adNetworkConfig.smartlinkEnabled ? 'ACTIVE' : 'OFF'}
+                            </button>
+                          </div>
+                          <p className="text-[11px] text-neutral-400 font-sans">
+                            Direct CPM Smartlink URL used for popunder redirects, banner clicks, and promo links.
+                          </p>
+                          <div>
+                            <label className="text-[10px] text-neutral-400 font-mono block mb-1">Smartlink Direct CPM URL:</label>
+                            <input
+                              type="text"
+                              value={adNetworkConfig.smartlinkUrl}
+                              onChange={(e) => updateAdNetworkConfig({ smartlinkUrl: e.target.value })}
+                              placeholder="https://www.effectivecpmnetwork.com/..."
+                              className="w-full bg-neutral-950 border border-neutral-800 text-amber-300 px-3 py-2 rounded-xl focus:outline-none focus:border-amber-400 text-xs font-mono"
+                            />
+                          </div>
+                        </div>
+
+                        {/* 4. SOCIAL BAR AD UNIT */}
+                        <div className="p-5 bg-neutral-900/90 border border-neutral-800 rounded-2xl space-y-3 relative">
+                          <div className="flex items-center justify-between border-b border-neutral-800 pb-2.5">
+                            <div className="flex items-center gap-2">
+                              <span className="w-2.5 h-2.5 rounded-full bg-rose-400"></span>
+                              <h5 className="text-xs font-bold text-white uppercase font-mono">4. Social Bar Ad</h5>
+                            </div>
+                            <button
+                              onClick={() => {
+                                updateAdNetworkConfig({ socialBarEnabled: !adNetworkConfig.socialBarEnabled });
+                                triggerAdminToast(`Social Bar ${!adNetworkConfig.socialBarEnabled ? 'Active' : 'Disabled'}`);
+                              }}
+                              className={`px-3 py-1 rounded-lg text-xs font-bold ${
+                                adNetworkConfig.socialBarEnabled ? 'bg-emerald-400 text-neutral-950' : 'bg-neutral-800 text-neutral-400'
+                              }`}
+                            >
+                              {adNetworkConfig.socialBarEnabled ? 'ACTIVE' : 'OFF'}
+                            </button>
+                          </div>
+                          <p className="text-[11px] text-neutral-400 font-sans">
+                            Floating notification & interactive chat bar ad unit with extremely high CTR.
+                          </p>
+                          <div>
+                            <label className="text-[10px] text-neutral-400 font-mono block mb-1">Social Bar Script / Tag Code:</label>
+                            <textarea
+                              rows={2}
+                              value={adNetworkConfig.socialBarCode}
+                              onChange={(e) => updateAdNetworkConfig({ socialBarCode: e.target.value })}
+                              placeholder="Paste Social Bar <script> tag..."
+                              className="w-full bg-neutral-950 border border-neutral-800 text-rose-300 p-2.5 rounded-xl focus:outline-none focus:border-amber-400 text-xs font-mono"
+                            />
+                          </div>
+                        </div>
                       </div>
                     </div>
 
@@ -2170,255 +2296,8 @@ export const AdminPanel: React.FC = () => {
                     </div>
                   </div>
                 </div>
-              )}
-
-              {/* MODE 2: PROMOTIONAL AD CAMPAIGNS & STORE DROPS */}
-              {adTabMode === 'campaigns' && (
-                <div className="space-y-6">
-                  {/* KPI Analytics Cards */}
-                  <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
-                <div className="p-4 bg-neutral-950 border border-neutral-800 rounded-xl space-y-1">
-                  <p className="text-[10px] text-neutral-400 font-mono uppercase">Total Ad Budget</p>
-                  <p className="text-lg font-bold text-white font-mono">₹{totalAdBudget.toLocaleString('en-IN')}</p>
-                </div>
-                <div className="p-4 bg-neutral-950 border border-neutral-800 rounded-xl space-y-1">
-                  <p className="text-[10px] text-neutral-400 font-mono uppercase">Total Ad Spend</p>
-                  <p className="text-lg font-bold text-amber-300 font-mono">₹{totalAdSpent.toLocaleString('en-IN')}</p>
-                </div>
-                <div className="p-4 bg-neutral-950 border border-neutral-800 rounded-xl space-y-1">
-                  <p className="text-[10px] text-neutral-400 font-mono uppercase">Impressions</p>
-                  <p className="text-lg font-bold text-sky-400 font-mono">{totalImpressions.toLocaleString()}</p>
-                </div>
-                <div className="p-4 bg-neutral-950 border border-neutral-800 rounded-xl space-y-1">
-                  <p className="text-[10px] text-neutral-400 font-mono uppercase">Total Ad Clicks</p>
-                  <p className="text-lg font-bold text-indigo-400 font-mono">{totalClicks.toLocaleString()}</p>
-                </div>
-                <div className="p-4 bg-neutral-950 border border-neutral-800 rounded-xl space-y-1 col-span-2 lg:col-span-1">
-                  <p className="text-[10px] text-neutral-400 font-mono uppercase">Total Conversions</p>
-                  <p className="text-lg font-bold text-emerald-400 font-mono">{totalConversions} Orders</p>
-                </div>
               </div>
-
-              {/* Create New Ad Campaign Form */}
-              <div className="p-5 bg-neutral-950 border border-neutral-800 rounded-2xl space-y-4">
-                <h3 className="text-xs font-bold text-amber-300 uppercase tracking-wider flex items-center gap-2 font-mono">
-                  <Plus className="w-4 h-4" /> Create & Launch New Ad Campaign
-                </h3>
-
-                {adSavedToast && (
-                  <div className="p-3 bg-emerald-950/80 border border-emerald-700 text-emerald-200 text-xs rounded-xl flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Ad campaign created and initialized successfully!
-                  </div>
-                )}
-
-                <form onSubmit={handleCreateAdSubmit} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <div className="sm:col-span-2 lg:col-span-1">
-                    <label className="text-xs text-neutral-400 font-mono block mb-1">Campaign Title *</label>
-                    <input
-                      type="text"
-                      required
-                      value={adTitle}
-                      onChange={(e) => setAdTitle(e.target.value)}
-                      placeholder="e.g. Festive Offer - Meta Instagram Ad"
-                      className="w-full bg-neutral-900 border border-neutral-800 text-white px-3.5 py-2.5 rounded-xl focus:outline-none focus:border-amber-400 text-xs font-mono"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-xs text-neutral-400 font-mono block mb-1">Ad Network / Placement *</label>
-                    <select
-                      value={adPlatform}
-                      onChange={(e: any) => setAdPlatform(e.target.value)}
-                      className="w-full bg-neutral-900 border border-neutral-800 text-white px-3.5 py-2.5 rounded-xl focus:outline-none focus:border-amber-400 text-xs font-mono"
-                    >
-                      <option value="Meta (Instagram/FB)">Meta (Instagram & Facebook Ads)</option>
-                      <option value="Google Search Ads">Google Search & Shopping Ads</option>
-                      <option value="Top Marquee Banner">Top Marquee Announcement Bar</option>
-                      <option value="Popup Promo Ad">Store Entrance Popup Sale Modal</option>
-                      <option value="In-Feed Store Ad">In-Feed Storefront Promo Card</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="text-xs text-neutral-400 font-mono block mb-1">Campaign Budget (₹) *</label>
-                    <input
-                      type="number"
-                      required
-                      value={adBudget}
-                      onChange={(e) => setAdBudget(e.target.value)}
-                      placeholder="e.g. 20000"
-                      className="w-full bg-neutral-900 border border-neutral-800 text-white px-3.5 py-2.5 rounded-xl focus:outline-none focus:border-amber-400 text-xs font-mono"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-xs text-neutral-400 font-mono block mb-1">Target Page URL</label>
-                    <input
-                      type="text"
-                      value={adTargetUrl}
-                      onChange={(e) => setAdTargetUrl(e.target.value)}
-                      placeholder="/shop or /women"
-                      className="w-full bg-neutral-900 border border-neutral-800 text-white px-3.5 py-2.5 rounded-xl focus:outline-none focus:border-amber-400 text-xs font-mono"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-xs text-neutral-400 font-mono block mb-1">Associated Promo Code (Optional)</label>
-                    <input
-                      type="text"
-                      value={adPromoCode}
-                      onChange={(e) => setAdPromoCode(e.target.value)}
-                      placeholder="e.g. SEOUL30"
-                      className="w-full bg-neutral-900 border border-neutral-800 text-white px-3.5 py-2.5 rounded-xl focus:outline-none focus:border-amber-400 text-xs font-mono uppercase"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-xs text-neutral-400 font-mono block mb-1">Ad Image / Banner URL (Optional)</label>
-                    <input
-                      type="url"
-                      value={adImageUrl}
-                      onChange={(e) => setAdImageUrl(e.target.value)}
-                      placeholder="https://images.unsplash.com/..."
-                      className="w-full bg-neutral-900 border border-neutral-800 text-white px-3.5 py-2.5 rounded-xl focus:outline-none focus:border-amber-400 text-xs font-mono"
-                    />
-                  </div>
-
-                  <div className="sm:col-span-2 lg:col-span-3 flex justify-end pt-2">
-                    <button
-                      type="submit"
-                      className="bg-amber-400 text-neutral-950 hover:bg-amber-300 px-6 py-2.5 font-bold font-mono text-xs rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-amber-400/10"
-                    >
-                      <Zap className="w-4 h-4 fill-current" /> Launch Ad Campaign Now
-                    </button>
-                  </div>
-                </form>
-              </div>
-
-              {/* Existing Ad Campaigns Table / Cards */}
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-xs font-bold text-white uppercase font-mono tracking-wider flex items-center gap-2">
-                    <BarChart3 className="w-4 h-4 text-amber-400" /> Active & Archived Campaigns ({adCampaigns.length})
-                  </h3>
-                </div>
-
-                <div className="space-y-3">
-                  {adCampaigns.map((ad) => {
-                    const spentPercentage = Math.min(100, Math.round((ad.spent / ad.budget) * 100));
-                    const ctr = ad.impressions > 0 ? ((ad.clicks / ad.impressions) * 100).toFixed(1) : '0';
-
-                    return (
-                      <div
-                        key={ad.id}
-                        className="p-4 bg-neutral-950 border border-neutral-800 hover:border-neutral-700 rounded-2xl space-y-3 transition-all"
-                      >
-                        <div className="flex flex-col md:flex-row justify-between md:items-center gap-3">
-                          <div className="flex items-start gap-3">
-                            <div className="p-3 bg-neutral-900 rounded-xl border border-neutral-800 shrink-0">
-                              <Megaphone className="w-5 h-5 text-amber-400" />
-                            </div>
-                            <div className="space-y-1">
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <h4 className="font-bold text-white text-sm">{ad.title}</h4>
-                                <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full border ${
-                                  ad.platform.includes('Meta')
-                                    ? 'bg-blue-950 text-blue-300 border-blue-800'
-                                    : ad.platform.includes('Google')
-                                    ? 'bg-rose-950 text-rose-300 border-rose-800'
-                                    : ad.platform.includes('Marquee')
-                                    ? 'bg-amber-950 text-amber-300 border-amber-800'
-                                    : 'bg-emerald-950 text-emerald-300 border-emerald-800'
-                                }`}>
-                                  {ad.platform}
-                                </span>
-                                {ad.promoCode && (
-                                  <span className="text-[10px] font-mono bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded text-amber-300">
-                                    CODE: {ad.promoCode}
-                                  </span>
-                                )}
-                              </div>
-                              <p className="text-[11px] text-neutral-400 font-mono">
-                                Started: {ad.startDate} • Target: <span className="text-neutral-300">{ad.targetUrl}</span>
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-2 shrink-0">
-                            <button
-                              onClick={() => toggleAdStatus(ad.id)}
-                              className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold flex items-center gap-1.5 transition-all ${
-                                ad.status === 'active'
-                                  ? 'bg-emerald-950 text-emerald-300 border border-emerald-800 hover:bg-emerald-900'
-                                  : 'bg-neutral-900 text-neutral-400 border border-neutral-800 hover:bg-neutral-800'
-                              }`}
-                            >
-                              {ad.status === 'active' ? (
-                                <>
-                                  <Pause className="w-3.5 h-3.5 text-emerald-400" /> ACTIVE
-                                </>
-                              ) : (
-                                <>
-                                  <Play className="w-3.5 h-3.5 text-neutral-400" /> PAUSED
-                                </>
-                              )}
-                            </button>
-
-                            <button
-                              onClick={() => deleteAdCampaign(ad.id)}
-                              className="p-2 text-neutral-500 hover:text-rose-400 hover:bg-rose-950/40 border border-transparent hover:border-rose-900 rounded-xl transition-all"
-                              title="Delete Campaign"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* Progress bar and metrics */}
-                        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 pt-2 border-t border-neutral-900 text-xs font-mono">
-                          <div>
-                            <span className="text-[10px] text-neutral-500 block">BUDGET SPENT</span>
-                            <span className="text-white font-bold">
-                              ₹{ad.spent.toLocaleString('en-IN')} / ₹{ad.budget.toLocaleString('en-IN')}
-                            </span>
-                            <div className="w-full bg-neutral-900 h-1.5 rounded-full mt-1 overflow-hidden">
-                              <div
-                                className="bg-amber-400 h-full rounded-full transition-all"
-                                style={{ width: `${spentPercentage}%` }}
-                              ></div>
-                            </div>
-                          </div>
-
-                          <div>
-                            <span className="text-[10px] text-neutral-500 block">IMPRESSIONS</span>
-                            <span className="text-neutral-300 font-semibold">{ad.impressions.toLocaleString()}</span>
-                          </div>
-
-                          <div>
-                            <span className="text-[10px] text-neutral-500 block">CLICKS & CTR</span>
-                            <span className="text-indigo-300 font-semibold">{ad.clicks.toLocaleString()} ({ctr}%)</span>
-                          </div>
-
-                          <div>
-                            <span className="text-[10px] text-neutral-500 block">CONVERSIONS</span>
-                            <span className="text-emerald-400 font-semibold">{ad.conversions} Orders</span>
-                          </div>
-
-                          <div className="col-span-2 md:col-span-1 flex items-center justify-end">
-                            <span className="text-[10px] bg-neutral-900 border border-neutral-800 text-amber-300 px-2.5 py-1 rounded-lg">
-                              ROAS: <strong className="text-white">{(1.5 + (ad.conversions * 0.1)).toFixed(1)}x</strong>
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
           )}
-        </div>
-      )}
 
         {/* TAX INVOICE & COURIER PACKING SLIP MODAL */}
         {selectedInvoiceOrder && (
