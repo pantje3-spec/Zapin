@@ -10,10 +10,18 @@ import {
   CheckCircle2,
   Share2,
   Plus,
-  Minus
+  Minus,
+  ThumbsUp,
+  Filter,
+  Search,
+  MessageSquare,
+  Award,
+  Sparkles,
+  SlidersHorizontal,
+  Check
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
-import { ProductSize, Product } from '../types';
+import { ProductSize, Product, Review } from '../types';
 import { Breadcrumb } from '../components/Breadcrumb';
 import { AdNetworkBanner } from '../components/AdNetworkBanner';
 
@@ -26,8 +34,8 @@ export const ProductDetailPage: React.FC = () => {
     isInWishlist,
     setIsSizeGuideOpen,
     addProductReview,
+    voteHelpfulReview,
     setCurrentPage,
-    setSelectedProductId,
     setSelectedCategoryFilter
   } = useStore();
 
@@ -65,7 +73,9 @@ export const ProductDetailPage: React.FC = () => {
         rating: 5,
         comment: 'Outstanding Korean fit. The shoulder drape is immaculate and wool quality is top-tier.',
         date: 'Jul 12, 2026',
-        verifiedBuyer: true
+        verifiedBuyer: true,
+        fitFeedback: 'True to Size',
+        helpfulCount: 14
       },
       {
         id: 'rev-2',
@@ -73,7 +83,19 @@ export const ProductDetailPage: React.FC = () => {
         rating: 5,
         comment: 'Super fast delivery and packaging was luxury Zara level. Highly recommend!',
         date: 'Jun 28, 2026',
-        verifiedBuyer: true
+        verifiedBuyer: true,
+        fitFeedback: 'True to Size',
+        helpfulCount: 9
+      },
+      {
+        id: 'rev-3',
+        userName: 'Priya Sharma',
+        rating: 4,
+        comment: 'Fabric feels premium and heavy. Fits slightly relaxed so go for your true size unless you want extra oversized.',
+        date: 'Jun 15, 2026',
+        verifiedBuyer: true,
+        fitFeedback: 'True to Size',
+        helpfulCount: 6
       }
     ]
   };
@@ -86,11 +108,51 @@ export const ProductDetailPage: React.FC = () => {
   const [quantity, setQuantity] = useState(1);
   const [addedToast, setAddedToast] = useState(false);
 
-  // Review Form state
+  // Review Form State
   const [reviewName, setReviewName] = useState('');
   const [reviewRating, setReviewRating] = useState(5);
+  const [hoverRating, setHoverRating] = useState(0);
+  const [reviewFit, setReviewFit] = useState<'True to Size' | 'Runs Small' | 'Runs Large'>('True to Size');
   const [reviewComment, setReviewComment] = useState('');
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
+
+  // Review Filter & Sort State
+  const [starFilter, setStarFilter] = useState<'all' | number>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<'recent' | 'highest' | 'lowest' | 'helpful'>('recent');
+  const [votedReviewIds, setVotedReviewIds] = useState<string[]>([]);
+
+  // Calculate Ratings & Reviews Summary Stats
+  const totalReviews = product.reviews ? product.reviews.length : 0;
+  const avgRatingNumber =
+    totalReviews > 0
+      ? product.reviews.reduce((acc, r) => acc + r.rating, 0) / totalReviews
+      : 5.0;
+  const avgRatingFormatted = avgRatingNumber.toFixed(1);
+
+  const starCounts = [5, 4, 3, 2, 1].map((star) => ({
+    star,
+    count: product.reviews.filter((r) => r.rating === star).length,
+    percentage:
+      totalReviews > 0
+        ? Math.round((product.reviews.filter((r) => r.rating === star).length / totalReviews) * 100)
+        : star === 5
+        ? 100
+        : 0
+  }));
+
+  const recommendPercentage =
+    totalReviews > 0
+      ? Math.round(
+          (product.reviews.filter((r) => r.rating >= 4).length / totalReviews) * 100
+        )
+      : 98;
+
+  const fitTrueToSizeCount = product.reviews.filter(
+    (r) => !r.fitFeedback || r.fitFeedback === 'True to Size'
+  ).length;
+  const fitRunsSmallCount = product.reviews.filter((r) => r.fitFeedback === 'Runs Small').length;
+  const fitRunsLargeCount = product.reviews.filter((r) => r.fitFeedback === 'Runs Large').length;
 
   const handleAddToCart = () => {
     addToCart(product, selectedSize, selectedColor, quantity);
@@ -102,16 +164,45 @@ export const ProductDetailPage: React.FC = () => {
     e.preventDefault();
     if (reviewName.trim() && reviewComment.trim()) {
       addProductReview(product.id, {
-        userName: reviewName,
+        userName: reviewName.trim(),
         rating: reviewRating,
-        comment: reviewComment
+        comment: reviewComment.trim(),
+        fitFeedback: reviewFit
       });
       setReviewSubmitted(true);
       setReviewName('');
       setReviewComment('');
+      setReviewRating(5);
+      setReviewFit('True to Size');
       setTimeout(() => setReviewSubmitted(false), 4000);
     }
   };
+
+  const handleHelpfulClick = (reviewId: string) => {
+    if (votedReviewIds.includes(reviewId)) return;
+    if (voteHelpfulReview) {
+      voteHelpfulReview(product.id, reviewId);
+    }
+    setVotedReviewIds((prev) => [...prev, reviewId]);
+  };
+
+  // Filtered & Sorted Reviews List
+  const filteredReviews = product.reviews.filter((rev) => {
+    const matchesStar = starFilter === 'all' || rev.rating === starFilter;
+    const matchesSearch =
+      !searchQuery.trim() ||
+      rev.comment.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      rev.userName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (rev.fitFeedback && rev.fitFeedback.toLowerCase().includes(searchQuery.toLowerCase()));
+    return matchesStar && matchesSearch;
+  });
+
+  const sortedReviews = [...filteredReviews].sort((a, b) => {
+    if (sortBy === 'highest') return b.rating - a.rating;
+    if (sortBy === 'lowest') return a.rating - b.rating;
+    if (sortBy === 'helpful') return (b.helpfulCount || 0) - (a.helpfulCount || 0);
+    return new Date(b.date).getTime() - new Date(a.date).getTime();
+  });
 
   const getCategoryLabel = (category: string) => {
     switch (category) {
@@ -140,6 +231,23 @@ export const ProductDetailPage: React.FC = () => {
     },
     { label: product.title, active: true }
   ];
+
+  const ratingLabelText = (r: number) => {
+    switch (r) {
+      case 5:
+        return '5 Stars — Excellent Fit & Quality';
+      case 4:
+        return '4 Stars — Great Material';
+      case 3:
+        return '3 Stars — Average Fit';
+      case 2:
+        return '2 Stars — Below Expectations';
+      case 1:
+        return '1 Star — Disappointed';
+      default:
+        return '';
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
@@ -228,7 +336,31 @@ export const ProductDetailPage: React.FC = () => {
               {product.title}
             </h1>
 
-            <div className="flex items-center gap-4 pt-1 font-mono">
+            {/* Quick Star Rating Trust Badge */}
+            <a
+              href="#customer-reviews"
+              className="inline-flex items-center gap-2 pt-1 text-xs font-mono group hover:opacity-80 transition-opacity"
+            >
+              <div className="flex text-amber-400">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className={`w-4 h-4 ${
+                      i < Math.round(Number(avgRatingFormatted))
+                        ? 'fill-amber-400 text-amber-400'
+                        : 'text-neutral-300 fill-neutral-200'
+                    }`}
+                  />
+                ))}
+              </div>
+              <span className="font-bold text-neutral-900">{avgRatingFormatted}</span>
+              <span className="text-neutral-500 underline">({totalReviews} verified reviews)</span>
+              <span className="text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded text-[10px] border border-emerald-200">
+                {recommendPercentage}% Recommend
+              </span>
+            </a>
+
+            <div className="flex items-center gap-4 pt-2 font-mono">
               <span className="text-2xl font-bold text-neutral-950">
                 ₹{product.price.toLocaleString('en-IN')}
               </span>
@@ -366,8 +498,8 @@ export const ProductDetailPage: React.FC = () => {
               {product.description}
             </p>
             <ul className="text-xs text-neutral-500 font-mono space-y-1 list-disc pl-4">
-              <li>Fabric Composition: Premium Heavyweight Virgin Wool Blend</li>
-              <li>Care: Specialist Dry Clean Only</li>
+              <li>Fabric Composition: Premium Heavyweight Cotton & Linen Blend</li>
+              <li>Care: Specialist Dry Clean / Delicate Hand Wash</li>
               <li>Origin: Crafted in Seongsu Atelier, Seoul, South Korea</li>
             </ul>
           </div>
@@ -379,64 +511,316 @@ export const ProductDetailPage: React.FC = () => {
         <AdNetworkBanner position="in-feed" />
       </div>
 
-      {/* Customer Reviews Section */}
-      <section className="mt-16 pt-12 border-t border-neutral-200">
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-          <div>
-            <h2 className="text-2xl font-light font-serif uppercase tracking-tight text-neutral-950">
-              Customer Reviews ({product.reviews.length})
-            </h2>
-            <div className="flex items-center gap-2 mt-1 text-xs font-mono text-neutral-600">
-              <div className="flex text-amber-400">
+      {/* CUSTOMER REVIEWS & RATING SYSTEM */}
+      <section id="customer-reviews" className="mt-16 pt-12 border-t border-neutral-200 space-y-10">
+        
+        {/* Section Header & Rating Overview Card */}
+        <div className="bg-neutral-50 border border-neutral-200 rounded-2xl p-6 md:p-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            
+            {/* Rating Hero Score Column */}
+            <div className="lg:col-span-4 text-center lg:text-left space-y-3 lg:border-r lg:border-neutral-200 lg:pr-8">
+              <span className="text-[11px] font-mono tracking-widest text-neutral-500 uppercase font-bold">
+                VERIFIED CUSTOMER RATING
+              </span>
+              <div className="flex items-baseline justify-center lg:justify-start gap-2">
+                <span className="text-5xl md:text-6xl font-light font-serif text-neutral-950">
+                  {avgRatingFormatted}
+                </span>
+                <span className="text-sm font-mono text-neutral-400">/ 5.0</span>
+              </div>
+              <div className="flex justify-center lg:justify-start text-amber-400 gap-1">
                 {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 fill-amber-400 stroke-none" />
+                  <Star
+                    key={i}
+                    className={`w-5 h-5 ${
+                      i < Math.round(Number(avgRatingFormatted))
+                        ? 'fill-amber-400 text-amber-400'
+                        : 'text-neutral-300 fill-neutral-200'
+                    }`}
+                  />
                 ))}
               </div>
-              <span>5.0 out of 5 based on verified buyers</span>
+              <p className="text-xs font-mono text-neutral-600">
+                Based on <strong className="text-neutral-900">{totalReviews} verified reviews</strong>
+              </p>
+              <div className="inline-flex items-center gap-1.5 bg-emerald-100/70 border border-emerald-300 text-emerald-900 px-3 py-1.5 rounded-full text-xs font-mono">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
+                <span>{recommendPercentage}% of buyers recommend this product</span>
+              </div>
             </div>
+
+            {/* Star Distribution Histogram Bars */}
+            <div className="lg:col-span-5 space-y-2">
+              <span className="text-[11px] font-mono uppercase tracking-widest text-neutral-500 block mb-2 font-semibold">
+                Rating Breakdown
+              </span>
+              {starCounts.map(({ star, count, percentage }) => (
+                <button
+                  key={star}
+                  onClick={() => setStarFilter(starFilter === star ? 'all' : star)}
+                  className={`w-full flex items-center gap-3 text-xs font-mono group p-1 rounded transition-colors ${
+                    starFilter === star ? 'bg-neutral-200/80 font-bold' : 'hover:bg-neutral-100'
+                  }`}
+                  title={`Filter by ${star} Stars`}
+                >
+                  <span className="w-12 text-left flex items-center gap-1 text-neutral-700">
+                    {star} <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                  </span>
+                  <div className="flex-1 h-2.5 bg-neutral-200 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-amber-400 rounded-full transition-all duration-500"
+                      style={{ width: `${percentage}%` }}
+                    />
+                  </div>
+                  <span className="w-12 text-right text-neutral-500 text-[11px]">
+                    {count} ({percentage}%)
+                  </span>
+                </button>
+              ))}
+            </div>
+
+            {/* Sizing Fit Perception Gauge */}
+            <div className="lg:col-span-3 space-y-3 bg-white p-4 rounded-xl border border-neutral-200">
+              <div className="flex items-center gap-1.5 text-xs font-mono uppercase font-bold text-neutral-900">
+                <Ruler className="w-4 h-4 text-neutral-700" />
+                <span>Fit Satisfaction</span>
+              </div>
+              <p className="text-[11px] font-mono text-neutral-500 leading-snug">
+                Customer consensus on sizing:
+              </p>
+              <div className="space-y-1.5 text-xs font-mono">
+                <div className="flex justify-between items-center text-[11px]">
+                  <span className="text-neutral-700 font-semibold">True to Size</span>
+                  <span className="text-neutral-900 font-bold">
+                    {totalReviews > 0 ? Math.round((fitTrueToSizeCount / totalReviews) * 100) : 90}%
+                  </span>
+                </div>
+                <div className="w-full h-1.5 bg-neutral-100 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-neutral-900 rounded-full"
+                    style={{
+                      width: `${totalReviews > 0 ? (fitTrueToSizeCount / totalReviews) * 100 : 90}%`
+                    }}
+                  />
+                </div>
+                <div className="flex justify-between text-[10px] text-neutral-400 pt-1">
+                  <span>Runs Small ({fitRunsSmallCount})</span>
+                  <span>Runs Large ({fitRunsLargeCount})</span>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          {/* Review List */}
-          <div className="lg:col-span-2 space-y-4">
-            {product.reviews.length === 0 ? (
-              <p className="text-xs text-neutral-500 font-mono py-6">
-                No reviews submitted yet for this product. Be the first to share your feedback!
-              </p>
+        {/* Filter, Search & Sort Control Toolbar */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-neutral-200 shadow-sm">
+          
+          {/* Star Filter Tabs */}
+          <div className="flex items-center gap-1 overflow-x-auto pb-1 md:pb-0">
+            <span className="text-xs font-mono text-neutral-500 uppercase mr-2 flex items-center gap-1">
+              <Filter className="w-3.5 h-3.5" /> Filter:
+            </span>
+            <button
+              onClick={() => setStarFilter('all')}
+              className={`px-3 py-1.5 text-xs font-mono rounded-full transition-all whitespace-nowrap ${
+                starFilter === 'all'
+                  ? 'bg-neutral-950 text-white font-bold shadow-sm'
+                  : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
+              }`}
+            >
+              All ({totalReviews})
+            </button>
+            {[5, 4, 3, 2, 1].map((s) => {
+              const countForStar = product.reviews.filter((r) => r.rating === s).length;
+              return (
+                <button
+                  key={s}
+                  onClick={() => setStarFilter(starFilter === s ? 'all' : s)}
+                  className={`px-3 py-1.5 text-xs font-mono rounded-full flex items-center gap-1 transition-all whitespace-nowrap ${
+                    starFilter === s
+                      ? 'bg-neutral-950 text-white font-bold shadow-sm'
+                      : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
+                  }`}
+                >
+                  <span>{s}</span>
+                  <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                  <span>({countForStar})</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Search & Sort Controls */}
+          <div className="flex flex-col sm:flex-row items-center gap-3">
+            {/* Search Box */}
+            <div className="relative w-full sm:w-48">
+              <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
+              <input
+                type="text"
+                placeholder="Search reviews..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-8 pr-3 py-1.5 text-xs font-mono bg-neutral-50 border border-neutral-200 rounded-lg focus:outline-none focus:border-neutral-900"
+              />
+            </div>
+
+            {/* Sort Selector */}
+            <div className="relative w-full sm:w-auto">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+                className="w-full sm:w-auto appearance-none bg-neutral-50 border border-neutral-200 rounded-lg px-3 py-1.5 pr-8 text-xs font-mono font-medium focus:outline-none focus:border-neutral-900"
+              >
+                <option value="recent">Most Recent</option>
+                <option value="highest">Highest Rating</option>
+                <option value="lowest">Lowest Rating</option>
+                <option value="helpful">Most Helpful</option>
+              </select>
+              <SlidersHorizontal className="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none" />
+            </div>
+          </div>
+
+        </div>
+
+        {/* Main Content Grid: Reviews List (Left) vs Submit Form (Right) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          
+          {/* Reviews List */}
+          <div className="lg:col-span-7 space-y-4">
+            <div className="flex items-center justify-between border-b border-neutral-200 pb-2">
+              <span className="text-xs font-mono uppercase text-neutral-500 font-bold">
+                Showing {sortedReviews.length} of {totalReviews} Reviews
+              </span>
+              {(starFilter !== 'all' || searchQuery.trim()) && (
+                <button
+                  onClick={() => {
+                    setStarFilter('all');
+                    setSearchQuery('');
+                  }}
+                  className="text-xs font-mono text-neutral-900 underline hover:text-black font-semibold"
+                >
+                  Clear Filters
+                </button>
+              )}
+            </div>
+
+            {sortedReviews.length === 0 ? (
+              <div className="p-8 text-center bg-neutral-50 rounded-xl border border-dashed border-neutral-300 space-y-3">
+                <MessageSquare className="w-8 h-8 text-neutral-400 mx-auto" />
+                <p className="text-xs font-mono text-neutral-600">
+                  No reviews found matching your search criteria or star filter.
+                </p>
+                <button
+                  onClick={() => {
+                    setStarFilter('all');
+                    setSearchQuery('');
+                  }}
+                  className="text-xs font-mono bg-neutral-900 text-white px-4 py-2 rounded uppercase font-bold"
+                >
+                  View All Reviews
+                </button>
+              </div>
             ) : (
-              product.reviews.map((rev) => (
-                <div key={rev.id} className="p-5 rounded-lg bg-neutral-50 border border-neutral-200 space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs font-bold text-neutral-900 font-mono">{rev.userName}</span>
+              sortedReviews.map((rev) => (
+                <div
+                  key={rev.id}
+                  className="p-5 rounded-xl bg-neutral-50 border border-neutral-200 space-y-3 shadow-xs hover:border-neutral-300 transition-all"
+                >
+                  {/* Header: User Name, Date, Verified Badge */}
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-neutral-950 font-mono">
+                        {rev.userName}
+                      </span>
+                      {rev.verifiedBuyer !== false && (
+                        <span className="inline-flex items-center gap-1 bg-emerald-100 text-emerald-900 text-[10px] font-mono px-2 py-0.5 rounded border border-emerald-200 font-medium">
+                          <CheckCircle2 className="w-3 h-3 text-emerald-700" />
+                          Verified Buyer
+                        </span>
+                      )}
+                    </div>
                     <span className="text-[11px] font-mono text-neutral-400">{rev.date}</span>
                   </div>
-                  <div className="flex text-amber-400">
-                    {[...Array(rev.rating)].map((_, i) => (
-                      <Star key={i} className="w-3.5 h-3.5 fill-amber-400 stroke-none" />
-                    ))}
+
+                  {/* Stars Rating & Fit Tag */}
+                  <div className="flex items-center gap-3">
+                    <div className="flex text-amber-400">
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className={`w-3.5 h-3.5 ${
+                            i < rev.rating
+                              ? 'fill-amber-400 text-amber-400'
+                              : 'text-neutral-300 fill-neutral-200'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    {rev.fitFeedback && (
+                      <span className="text-[10px] font-mono text-neutral-600 bg-neutral-200/80 px-2 py-0.5 rounded">
+                        Fit: <strong>{rev.fitFeedback}</strong>
+                      </span>
+                    )}
                   </div>
-                  <p className="text-xs text-neutral-700 leading-relaxed font-sans">{rev.comment}</p>
+
+                  {/* Review Text Body */}
+                  <p className="text-xs text-neutral-800 leading-relaxed font-sans">{rev.comment}</p>
+
+                  {/* Bottom Bar: Helpful Thumbs Up Action */}
+                  <div className="pt-2 border-t border-neutral-200/60 flex items-center justify-between text-[11px] font-mono text-neutral-500">
+                    <span>Was this review helpful?</span>
+                    <button
+                      onClick={() => handleHelpfulClick(rev.id)}
+                      disabled={votedReviewIds.includes(rev.id)}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded border transition-all ${
+                        votedReviewIds.includes(rev.id)
+                          ? 'bg-emerald-50 border-emerald-300 text-emerald-800 font-bold'
+                          : 'bg-white border-neutral-200 text-neutral-700 hover:bg-neutral-100 hover:border-neutral-400'
+                      }`}
+                    >
+                      <ThumbsUp className="w-3 h-3" />
+                      <span>{votedReviewIds.includes(rev.id) ? 'Helpful!' : 'Helpful'}</span>
+                      {((rev.helpfulCount || 0) + (votedReviewIds.includes(rev.id) ? 1 : 0)) > 0 && (
+                        <span className="ml-0.5 text-neutral-900 font-bold">
+                          ({(rev.helpfulCount || 0) + (votedReviewIds.includes(rev.id) ? 1 : 0)})
+                        </span>
+                      )}
+                    </button>
+                  </div>
+
                 </div>
               ))
             )}
           </div>
 
-          {/* Submit Review Form */}
-          <div className="bg-neutral-950 text-white p-6 rounded-lg border border-neutral-800 space-y-4">
-            <h3 className="text-xs font-mono tracking-widest uppercase text-white font-bold">
-              Write a Verified Review
-            </h3>
+          {/* Right Column: Interactive Review Submission Form */}
+          <div className="lg:col-span-5 bg-neutral-950 text-white p-6 sm:p-8 rounded-2xl border border-neutral-800 space-y-6 shadow-2xl sticky top-6">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 text-amber-400 text-xs font-mono uppercase tracking-widest font-bold">
+                <Sparkles className="w-4 h-4" /> Share Your Experience
+              </div>
+              <h3 className="text-xl font-light font-serif text-white">Write a Verified Review</h3>
+              <p className="text-xs text-neutral-400 font-sans">
+                Help fellow buyers choose the perfect Korean tailored fit.
+              </p>
+            </div>
 
             {reviewSubmitted ? (
-              <div className="p-3 bg-emerald-950 border border-emerald-700 text-emerald-200 text-xs font-mono rounded">
-                ✓ Thank you! Your review has been submitted.
+              <div className="p-4 bg-emerald-950/80 border border-emerald-600 text-emerald-200 text-xs font-mono rounded-xl space-y-2 animate-in fade-in">
+                <div className="flex items-center gap-2 font-bold text-emerald-100 text-sm">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-400" /> Review Published!
+                </div>
+                <p>Thank you for contributing! Your feedback is now live on our store.</p>
               </div>
             ) : (
-              <form onSubmit={handleReviewSubmit} className="space-y-3">
+              <form onSubmit={handleReviewSubmit} className="space-y-4">
+                
+                {/* Name Field */}
                 <div>
-                  <label className="text-[11px] font-mono uppercase text-neutral-400 block mb-1">
-                    Your Name
+                  <label className="text-[11px] font-mono uppercase text-neutral-300 block mb-1">
+                    Your Full Name *
                   </label>
                   <input
                     type="text"
@@ -444,49 +828,97 @@ export const ProductDetailPage: React.FC = () => {
                     onChange={(e) => setReviewName(e.target.value)}
                     required
                     placeholder="e.g. Soo-jin Park"
-                    className="w-full bg-neutral-900 border border-neutral-800 text-white text-xs px-3 py-2 rounded focus:outline-none focus:border-neutral-500 font-mono"
+                    className="w-full bg-neutral-900 border border-neutral-800 text-white text-xs px-3.5 py-2.5 rounded-lg focus:outline-none focus:border-neutral-500 font-mono placeholder:text-neutral-600"
                   />
                 </div>
 
+                {/* Interactive Star Rating Selector */}
                 <div>
-                  <label className="text-[11px] font-mono uppercase text-neutral-400 block mb-1">
-                    Rating
+                  <label className="text-[11px] font-mono uppercase text-neutral-300 block mb-1.5">
+                    Rating *
                   </label>
-                  <select
-                    value={reviewRating}
-                    onChange={(e) => setReviewRating(Number(e.target.value))}
-                    className="w-full bg-neutral-900 border border-neutral-800 text-white text-xs px-3 py-2 rounded focus:outline-none font-mono"
-                  >
-                    <option value={5}>5 Stars - Excellent Fit</option>
-                    <option value={4}>4 Stars - Great Quality</option>
-                    <option value={3}>3 Stars - Average Fit</option>
-                  </select>
+                  <div className="flex items-center gap-2">
+                    <div className="flex text-amber-400 gap-1 bg-neutral-900 p-2.5 rounded-lg border border-neutral-800">
+                      {[1, 2, 3, 4, 5].map((starVal) => (
+                        <button
+                          key={starVal}
+                          type="button"
+                          onClick={() => setReviewRating(starVal)}
+                          onMouseEnter={() => setHoverRating(starVal)}
+                          onMouseLeave={() => setHoverRating(0)}
+                          className="p-1 focus:outline-none transition-transform hover:scale-125"
+                        >
+                          <Star
+                            className={`w-5 h-5 ${
+                              starVal <= (hoverRating || reviewRating)
+                                ? 'fill-amber-400 text-amber-400'
+                                : 'text-neutral-700 fill-neutral-800'
+                            }`}
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-mono text-neutral-400 mt-1 block">
+                    {ratingLabelText(hoverRating || reviewRating)}
+                  </span>
                 </div>
 
+                {/* Fit Feedback Option */}
                 <div>
-                  <label className="text-[11px] font-mono uppercase text-neutral-400 block mb-1">
-                    Your Experience
+                  <label className="text-[11px] font-mono uppercase text-neutral-300 block mb-1.5">
+                    How does it fit?
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {(['Runs Small', 'True to Size', 'Runs Large'] as const).map((fitOpt) => (
+                      <button
+                        key={fitOpt}
+                        type="button"
+                        onClick={() => setReviewFit(fitOpt)}
+                        className={`py-2 px-1 text-[10px] font-mono rounded-lg border transition-all text-center ${
+                          reviewFit === fitOpt
+                            ? 'bg-white text-neutral-950 border-white font-bold shadow-md'
+                            : 'bg-neutral-900 text-neutral-400 border-neutral-800 hover:border-neutral-700'
+                        }`}
+                      >
+                        {fitOpt}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Comment Field */}
+                <div>
+                  <label className="text-[11px] font-mono uppercase text-neutral-300 block mb-1">
+                    Your Detailed Review *
                   </label>
                   <textarea
                     value={reviewComment}
                     onChange={(e) => setReviewComment(e.target.value)}
                     required
-                    rows={3}
-                    placeholder="Describe tailoring fit, fabric weight, and satisfaction..."
-                    className="w-full bg-neutral-900 border border-neutral-800 text-white text-xs px-3 py-2 rounded focus:outline-none focus:border-neutral-500 font-sans"
+                    rows={4}
+                    placeholder="Describe the fabric quality, shoulder drape, stitching, and fit experience..."
+                    className="w-full bg-neutral-900 border border-neutral-800 text-white text-xs p-3 rounded-lg focus:outline-none focus:border-neutral-500 font-sans placeholder:text-neutral-600"
                   />
                 </div>
 
+                {/* Submit Button */}
                 <button
                   type="submit"
-                  className="w-full bg-white text-neutral-950 py-2.5 text-xs font-mono tracking-widest uppercase font-bold rounded hover:bg-neutral-200 transition-colors"
+                  className="w-full bg-white text-neutral-950 py-3 text-xs font-mono tracking-widest uppercase font-bold rounded-lg hover:bg-neutral-200 transition-colors shadow-lg"
                 >
-                  Submit Review
+                  Submit Verified Review
                 </button>
+
+                <p className="text-[10px] font-mono text-neutral-500 text-center">
+                  🔒 Verified buyer reviews undergo instant store validation.
+                </p>
               </form>
             )}
           </div>
+
         </div>
+
       </section>
     </div>
   );

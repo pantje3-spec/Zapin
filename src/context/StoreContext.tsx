@@ -7,8 +7,10 @@ import {
   onSnapshot
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { initialProducts } from '../data/initialProducts';
 import {
   Product,
+  Review,
   CartItem,
   Coupon,
   Order,
@@ -98,7 +100,8 @@ interface StoreContextType {
   updateUserProfile: (data: Partial<UserProfile>) => void;
 
   // Reviews
-  addProductReview: (productId: string, review: { userName: string; rating: number; comment: string }) => void;
+  addProductReview: (productId: string, review: { userName: string; rating: number; comment: string; fitFeedback?: 'True to Size' | 'Runs Small' | 'Runs Large' }) => void;
+  voteHelpfulReview: (productId: string, reviewId: string) => void;
 
   // Admin Mode
   isAdmin: boolean;
@@ -203,13 +206,28 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<ProductCategory | 'all'>('all');
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
 
-  // STRICT REQUIREMENT: Products initialized as strictly EMPTY []
+  // Initialized with full 20 high-fashion clothing products catalog (₹199 - ₹999)
   const [products, setProducts] = useState<Product[]>(() => {
     const saved = localStorage.getItem('zapin_products');
     if (saved) {
-      try { return JSON.parse(saved); } catch (e) { return []; }
+      try {
+        const parsed: Product[] = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          // Ensure all prices are updated to ₹199 - ₹999 range
+          return parsed.map((p) => {
+            const match = initialProducts.find((ip) => ip.id === p.id);
+            if (match) {
+              return { ...p, price: match.price, compareAtPrice: match.compareAtPrice };
+            }
+            const clampedPrice = Math.min(Math.max(p.price, 199), 999);
+            return { ...p, price: clampedPrice };
+          });
+        }
+      } catch (e) {
+        return initialProducts;
+      }
     }
-    return []; // Empty list
+    return initialProducts;
   });
 
   const [cart, setCart] = useState<CartItem[]>(() => {
@@ -305,7 +323,26 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           fetchedProducts.push(docSnap.data() as Product);
         });
         if (fetchedProducts.length > 0) {
-          setProducts(fetchedProducts);
+          const sanitized = fetchedProducts.map((p) => {
+            const match = initialProducts.find((ip) => ip.id === p.id);
+            if (match && (p.price > 999 || p.price < 199)) {
+              const updated = { ...p, price: match.price, compareAtPrice: match.compareAtPrice };
+              setDoc(doc(db, 'products', p.id), updated).catch(() => {});
+              return updated;
+            } else if (p.price > 999 || p.price < 199) {
+              const clamped = Math.min(Math.max(p.price, 199), 999);
+              const updated = { ...p, price: clamped };
+              setDoc(doc(db, 'products', p.id), updated).catch(() => {});
+              return updated;
+            }
+            return p;
+          });
+          setProducts(sanitized);
+        } else {
+          // Seed initial 20 products to Firestore
+          initialProducts.forEach((p) => {
+            setDoc(doc(db, 'products', p.id), p).catch(() => {});
+          });
         }
       }, (err) => {
         console.warn('Firestore products snapshot listener warning:', err);
@@ -627,22 +664,46 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   // Review
-  const addProductReview = (productId: string, reviewData: { userName: string; rating: number; comment: string }) => {
+  const addProductReview = (productId: string, reviewData: { userName: string; rating: number; comment: string; fitFeedback?: 'True to Size' | 'Runs Small' | 'Runs Large' }) => {
     setProducts((prev) =>
       prev.map((p) => {
         if (p.id === productId) {
-          const newReview = {
+          const newReview: Review = {
             id: 'rev-' + Date.now(),
             userName: reviewData.userName,
             rating: reviewData.rating,
             comment: reviewData.comment,
             date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-            verifiedBuyer: true
+            verifiedBuyer: true,
+            fitFeedback: reviewData.fitFeedback || 'True to Size',
+            helpfulCount: 0
           };
-          return {
+          const updatedProduct = {
             ...p,
             reviews: [newReview, ...p.reviews]
           };
+          // Persist to Firestore if enabled
+          setDoc(doc(db, 'products', p.id), updatedProduct).catch((err) => console.warn('Firestore review sync note:', err));
+          return updatedProduct;
+        }
+        return p;
+      })
+    );
+  };
+
+  const voteHelpfulReview = (productId: string, reviewId: string) => {
+    setProducts((prev) =>
+      prev.map((p) => {
+        if (p.id === productId) {
+          const updatedReviews = p.reviews.map((r) => {
+            if (r.id === reviewId) {
+              return { ...r, helpfulCount: (r.helpfulCount || 0) + 1 };
+            }
+            return r;
+          });
+          const updatedProduct = { ...p, reviews: updatedReviews };
+          setDoc(doc(db, 'products', p.id), updatedProduct).catch((err) => console.warn('Firestore vote sync note:', err));
+          return updatedProduct;
         }
         return p;
       })
@@ -703,6 +764,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         logoutUser,
         updateUserProfile,
         addProductReview,
+        voteHelpfulReview,
         isAdmin,
         setIsAdmin
       }}

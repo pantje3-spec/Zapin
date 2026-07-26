@@ -1,5 +1,5 @@
 export type ProductCategory = 'men' | 'women' | 'new-arrivals' | 'unisex';
-export type ProductSize = 'S' | 'M' | 'L' | 'XL' | 'XXL' | 'Free Size';
+export type ProductSize = 'XS' | 'S' | 'M' | 'L' | 'XL' | 'XXL' | 'Free Size';
 
 export interface Review {
   id: string;
@@ -8,6 +8,8 @@ export interface Review {
   comment: string;
   date: string;
   verifiedBuyer: boolean;
+  fitFeedback?: 'True to Size' | 'Runs Small' | 'Runs Large';
+  helpfulCount?: number;
 }
 
 export interface Product {
