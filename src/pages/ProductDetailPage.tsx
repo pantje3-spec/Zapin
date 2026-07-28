@@ -25,6 +25,7 @@ import { ProductSize, Product, Review } from '../types';
 import { Breadcrumb } from '../components/Breadcrumb';
 import { AdNetworkBanner } from '../components/AdNetworkBanner';
 import { SEO } from '../components/SEO';
+import { ProductDetailAdBanner, ProductCardAdBadges } from '../components/ProductAdHighlights';
 
 export const ProductDetailPage: React.FC = () => {
   const {
@@ -308,9 +309,12 @@ export const ProductDetailPage: React.FC = () => {
               referrerPolicy="no-referrer"
               className="w-full h-full object-cover"
             />
+            <div className="absolute top-4 left-4 z-10">
+              <ProductCardAdBadges showCod={true} showQualityBadge={true} isSponsored={true} />
+            </div>
             <button
               onClick={() => toggleWishlist(product)}
-              className="absolute top-4 right-4 bg-white/90 p-3 rounded-full shadow-md text-neutral-800 hover:text-red-600 transition-colors"
+              className="absolute top-4 right-4 bg-white/90 p-3 rounded-full shadow-md text-neutral-800 hover:text-red-600 transition-colors z-10"
               title="Save to wishlist"
             >
               <Heart
@@ -495,6 +499,11 @@ export const ProductDetailPage: React.FC = () => {
                 </button>
               </div>
             )}
+          </div>
+
+          {/* SPONSORED PRODUCT AD & COD HIGHLIGHT BANNER */}
+          <div className="pt-2">
+            <ProductDetailAdBanner productTitle={product.title} price={product.price} />
           </div>
 
           {/* Value Highlights */}

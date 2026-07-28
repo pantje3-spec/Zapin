@@ -4,6 +4,7 @@ import { useStore } from '../context/StoreContext';
 import { EmptyProductState } from '../components/EmptyProductState';
 import { AdNetworkBanner } from '../components/AdNetworkBanner';
 import { SEO } from '../components/SEO';
+import { ProductCardAdBadges } from '../components/ProductAdHighlights';
 
 export const HomePage: React.FC = () => {
   const { setCurrentPage, setSelectedCategoryFilter, bannerConfig, products, setSelectedProductId, adCampaigns, adNetworkConfig } = useStore();
@@ -329,6 +330,9 @@ export const HomePage: React.FC = () => {
                   <span className="absolute top-2 left-2 bg-black text-white text-[10px] font-mono uppercase px-2 py-0.5 rounded">
                     {p.category}
                   </span>
+                  <div className="absolute bottom-2 left-2 right-2">
+                    <ProductCardAdBadges showCod={true} showQualityBadge={true} isSponsored={true} />
+                  </div>
                 </div>
                 <h4 className="text-xs font-medium text-neutral-900 group-hover:underline">
                   {p.title}

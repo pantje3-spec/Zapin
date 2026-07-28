@@ -6,6 +6,7 @@ import { ProductCategory, ProductSize } from '../types';
 import { AdNetworkBanner } from '../components/AdNetworkBanner';
 import { Breadcrumb } from '../components/Breadcrumb';
 import { SEO } from '../components/SEO';
+import { ProductCardAdBadges } from '../components/ProductAdHighlights';
 
 export const ShopPage: React.FC = () => {
   const {
@@ -354,6 +355,9 @@ export const ShopPage: React.FC = () => {
                       <span className="absolute top-2 left-2 bg-black text-white text-[10px] font-mono uppercase px-2 py-0.5 rounded">
                         {p.category}
                       </span>
+                      <div className="absolute bottom-2 left-2 right-2">
+                        <ProductCardAdBadges showCod={true} showQualityBadge={true} isSponsored={idx % 2 === 0} />
+                      </div>
                     </div>
 
                     <h4 className="text-xs font-semibold text-neutral-900 group-hover:underline">

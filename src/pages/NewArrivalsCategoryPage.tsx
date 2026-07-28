@@ -4,6 +4,7 @@ import { EmptyProductState } from '../components/EmptyProductState';
 import { Breadcrumb } from '../components/Breadcrumb';
 import { AdNetworkBanner } from '../components/AdNetworkBanner';
 import { SEO } from '../components/SEO';
+import { ProductCardAdBadges } from '../components/ProductAdHighlights';
 
 export const NewArrivalsCategoryPage: React.FC = () => {
   const { products, setSelectedProductId, setCurrentPage } = useStore();
@@ -77,6 +78,9 @@ export const NewArrivalsCategoryPage: React.FC = () => {
                     referrerPolicy="no-referrer"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
+                  <div className="absolute bottom-2 left-2 right-2">
+                    <ProductCardAdBadges showCod={true} showQualityBadge={true} isSponsored={true} />
+                  </div>
                 </div>
                 <h4 className="text-xs font-semibold text-neutral-900 group-hover:underline">
                   {p.title}
