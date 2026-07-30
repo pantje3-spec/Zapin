@@ -130,13 +130,13 @@ const defaultAdNetworkConfig: AdNetworkConfig = {
   autoAdsEnabled: true,
   bodyScriptEnabled: true,
   bodyAdCode: '<script type="text/javascript" src="//www.effectivecpmnetwork.com/yfdbxvqp6?key=5ca691feaa140cf099df2901ccbf6071"></script>',
-  popupAdEnabled: true,
+  popupAdEnabled: false,
   customScriptSnippet: '<script src="https://pl30523299.effectivecpmnetwork.com/0d/e7/24/0de724a8a1397bdac25450cdd9e86a34.js"></script>',
   // Native Banner, Popunder, Smartlink, Social Bar Ad Units
   nativeBannerEnabled: true,
   nativeBannerCode: '<script async="async" data-cfasync="false" src="https://pl30523300.effectivecpmnetwork.com/f869575f965baf0c6ee1585c2faa6bc8/invoke.js"></script><div id="container-f869575f965baf0c6ee1585c2faa6bc8"></div>',
-  popunderEnabled: true,
-  popunderCode: '<script type="text/javascript" src="//www.effectivecpmnetwork.com/yfdbxvqp6?key=5ca691feaa140cf099df2901ccbf6071"></script>',
+  popunderEnabled: false,
+  popunderCode: '',
   smartlinkEnabled: true,
   smartlinkUrl: 'https://www.effectivecpmnetwork.com/p6301rkg6?key=5ae6deb02a6effe7cd9e0b09f722e6a2',
   socialBarEnabled: true,
@@ -283,7 +283,12 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [adNetworkConfig, setAdNetworkConfig] = useState<AdNetworkConfig>(() => {
     const saved = localStorage.getItem('zapin_ad_network_config');
     if (saved) {
-      try { return JSON.parse(saved); } catch (e) { return defaultAdNetworkConfig; }
+      try {
+        const parsed = JSON.parse(saved);
+        return { ...parsed, popunderEnabled: false, popupAdEnabled: false, popunderCode: '' };
+      } catch (e) {
+        return defaultAdNetworkConfig;
+      }
     }
     return defaultAdNetworkConfig;
   });

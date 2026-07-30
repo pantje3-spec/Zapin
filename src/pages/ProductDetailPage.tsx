@@ -26,6 +26,7 @@ import { Breadcrumb } from '../components/Breadcrumb';
 import { AdNetworkBanner } from '../components/AdNetworkBanner';
 import { SEO } from '../components/SEO';
 import { ProductDetailAdBanner, ProductCardAdBadges } from '../components/ProductAdHighlights';
+import { OptimizedImage } from '../components/OptimizedImage';
 
 export const ProductDetailPage: React.FC = () => {
   const {
@@ -303,11 +304,12 @@ export const ProductDetailPage: React.FC = () => {
         {/* Left Column: Image Gallery */}
         <div className="space-y-4">
           <div className="aspect-3/4 bg-neutral-100 rounded-lg overflow-hidden border border-neutral-200 relative">
-            <img
+            <OptimizedImage
               src={product.images[activeImageIndex] || product.images[0]}
               alt={product.title}
-              referrerPolicy="no-referrer"
+              priority
               className="w-full h-full object-cover"
+              sizes="(max-width: 1024px) 100vw, 50vw"
             />
             <div className="absolute top-4 left-4 z-10">
               <ProductCardAdBadges showCod={true} showQualityBadge={true} isSponsored={true} />
@@ -332,15 +334,15 @@ export const ProductDetailPage: React.FC = () => {
                 <button
                   key={idx}
                   onClick={() => setActiveImageIndex(idx)}
-                  className={`w-20 h-24 rounded overflow-hidden border-2 transition-all ${
+                  className={`w-20 h-24 rounded overflow-hidden border-2 transition-all shrink-0 ${
                     activeImageIndex === idx ? 'border-neutral-950 scale-105' : 'border-neutral-200 opacity-60'
                   }`}
                 >
-                  <img
+                  <OptimizedImage
                     src={img}
                     alt={`${product.title} view ${idx + 1}`}
-                    referrerPolicy="no-referrer"
                     className="w-full h-full object-cover"
+                    sizes="80px"
                   />
                 </button>
               ))}

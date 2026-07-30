@@ -104,12 +104,7 @@ export const GlobalBodyAdScript: React.FC = () => {
       injectScriptOrHtml(adNetworkConfig.nativeBannerCode, 'native-banner');
     }
 
-    // 4. Popunder Script
-    if (adNetworkConfig.popunderEnabled && adNetworkConfig.popunderCode) {
-      injectScriptOrHtml(adNetworkConfig.popunderCode, 'popunder-script');
-    }
-
-    // 5. Custom / Newsletter Ad Snippet Injection
+    // 4. Custom / Newsletter Ad Snippet Injection
     if (adNetworkConfig.customScriptSnippet) {
       injectScriptOrHtml(adNetworkConfig.customScriptSnippet, 'custom-script');
     }
@@ -118,32 +113,7 @@ export const GlobalBodyAdScript: React.FC = () => {
       document.body.appendChild(scriptContainer);
     }
 
-    // Global Popunder / Smartlink On-Click Listener
-    const handleGlobalClick = () => {
-      const targetPopunderUrl =
-        adNetworkConfig.smartlinkUrl ||
-        adNetworkConfig.directAdUrl ||
-        'https://www.effectivecpmnetwork.com/p6301rkg6?key=5ae6deb02a6effe7cd9e0b09f722e6a2';
-
-      if ((adNetworkConfig.popunderEnabled || adNetworkConfig.popupAdEnabled) && targetPopunderUrl) {
-        const hasTriggered = sessionStorage.getItem('zapin_popunder_ad_triggered');
-        if (!hasTriggered) {
-          sessionStorage.setItem('zapin_popunder_ad_triggered', 'true');
-          const adWindow = window.open(targetPopunderUrl, '_blank');
-          if (adWindow) {
-            adWindow.blur();
-            window.focus();
-          }
-        }
-      }
-    };
-
-    if (adNetworkConfig.popunderEnabled || adNetworkConfig.popupAdEnabled) {
-      window.addEventListener('click', handleGlobalClick, { once: true });
-    }
-
     return () => {
-      window.removeEventListener('click', handleGlobalClick);
       const containerEl = document.getElementById('zapin-global-body-ad-container');
       if (containerEl) {
         containerEl.remove();

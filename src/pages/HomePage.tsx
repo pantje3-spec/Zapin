@@ -5,6 +5,7 @@ import { EmptyProductState } from '../components/EmptyProductState';
 import { AdNetworkBanner } from '../components/AdNetworkBanner';
 import { SEO } from '../components/SEO';
 import { ProductCardAdBadges } from '../components/ProductAdHighlights';
+import { OptimizedImage } from '../components/OptimizedImage';
 
 export const HomePage: React.FC = () => {
   const { setCurrentPage, setSelectedCategoryFilter, bannerConfig, products, setSelectedProductId, adCampaigns, adNetworkConfig } = useStore();
@@ -98,11 +99,12 @@ export const HomePage: React.FC = () => {
       {/* Hero Banner */}
       <section className="relative h-[85vh] min-h-[550px] max-h-[850px] bg-neutral-950 overflow-hidden flex items-center">
         <div className="absolute inset-0 z-0 opacity-60">
-          <img
+          <OptimizedImage
             src={bannerConfig.heroImageUrl}
             alt="Zapin Korean Fashion Hero"
-            referrerPolicy="no-referrer"
+            priority
             className="w-full h-full object-cover object-center grayscale hover:grayscale-0 transition-all duration-1000"
+            sizes="100vw"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/40 to-transparent" />
         </div>
@@ -174,11 +176,11 @@ export const HomePage: React.FC = () => {
           </div>
 
           <div className="relative group overflow-hidden rounded-lg shadow-xl">
-            <img
+            <OptimizedImage
               src="https://images.unsplash.com/photo-1445205170230-053b83016050?q=80&w=1200&auto=format&fit=crop"
               alt="Zapin Studio Seoul"
-              referrerPolicy="no-referrer"
               className="w-full h-[420px] object-cover group-hover:scale-105 transition-transform duration-700"
+              sizes="(max-width: 768px) 100vw, 50vw"
             />
             <div className="absolute inset-0 bg-neutral-950/20" />
           </div>
@@ -219,11 +221,11 @@ export const HomePage: React.FC = () => {
               onClick={() => handleCategoryClick(card.cat)}
               className="group cursor-pointer bg-neutral-950 rounded-lg overflow-hidden relative shadow-lg h-[460px] flex flex-col justify-end p-6 border border-neutral-800"
             >
-              <img
+              <OptimizedImage
                 src={card.image}
                 alt={card.title}
-                referrerPolicy="no-referrer"
                 className="absolute inset-0 w-full h-full object-cover opacity-75 group-hover:opacity-90 group-hover:scale-105 transition-all duration-700"
+                sizes="(max-width: 768px) 100vw, 33vw"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/30 to-transparent" />
 
@@ -253,11 +255,11 @@ export const HomePage: React.FC = () => {
       <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="relative rounded-xl overflow-hidden bg-neutral-950 text-white p-8 sm:p-14 flex flex-col md:flex-row items-center justify-between gap-8 border border-neutral-800 shadow-2xl">
           <div className="absolute inset-0 opacity-40">
-            <img
+            <OptimizedImage
               src={bannerConfig.promoBannerImage}
               alt="Promo Banner"
-              referrerPolicy="no-referrer"
               className="w-full h-full object-cover"
+              sizes="100vw"
             />
             <div className="absolute inset-0 bg-neutral-950/70" />
           </div>
@@ -321,11 +323,11 @@ export const HomePage: React.FC = () => {
                 className="group cursor-pointer border border-neutral-200 rounded p-3 hover:shadow-lg transition-all"
               >
                 <div className="aspect-3/4 overflow-hidden rounded bg-neutral-100 mb-3 relative">
-                  <img
+                  <OptimizedImage
                     src={p.images[0] || 'https://images.unsplash.com/photo-1516257984-b1b4d707412e?q=80&w=400'}
                     alt={p.title}
-                    referrerPolicy="no-referrer"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                   />
                   <span className="absolute top-2 left-2 bg-black text-white text-[10px] font-mono uppercase px-2 py-0.5 rounded">
                     {p.category}
@@ -397,11 +399,11 @@ export const HomePage: React.FC = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {instagramPosts.map((src, i) => (
             <div key={i} className="group relative overflow-hidden rounded-lg aspect-square bg-neutral-100">
-              <img
+              <OptimizedImage
                 src={src}
                 alt="Zapin Instagram"
-                referrerPolicy="no-referrer"
                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                sizes="(max-width: 640px) 50vw, 25vw"
               />
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-mono tracking-widest">
                 VIEW POST

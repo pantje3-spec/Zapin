@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Megaphone, Sparkles, X, Tag, Copy, Check, ArrowRight, Zap } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
+import { OptimizedImage } from './OptimizedImage';
 
 export const WebsiteAdWidget: React.FC = () => {
   const { adCampaigns, currentPage, setCurrentPage, setSelectedCategoryFilter } = useStore();
@@ -94,11 +95,11 @@ export const WebsiteAdWidget: React.FC = () => {
 
                   {ad.imageUrl && (
                     <div className="h-28 rounded-xl overflow-hidden bg-neutral-950 relative">
-                      <img
+                      <OptimizedImage
                         src={ad.imageUrl}
                         alt={ad.title}
-                        referrerPolicy="no-referrer"
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        sizes="(max-width: 640px) 100vw, 500px"
                       />
                     </div>
                   )}

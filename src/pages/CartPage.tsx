@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ShoppingBag, Trash2, ArrowRight, Tag, Plus, Minus, ArrowLeft } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { AdNetworkBanner } from '../components/AdNetworkBanner';
+import { OptimizedImage } from '../components/OptimizedImage';
 
 export const CartPage: React.FC = () => {
   const {
@@ -87,14 +88,14 @@ export const CartPage: React.FC = () => {
               className="flex flex-col sm:flex-row gap-6 p-4 rounded-lg border border-neutral-200 bg-white items-center justify-between"
             >
               <div className="flex gap-4 items-center w-full sm:w-auto">
-                <img
+                <OptimizedImage
                   src={
                     item.product.images[0] ||
                     'https://images.unsplash.com/photo-1516257984-b1b4d707412e?q=80&w=300'
                   }
                   alt={item.product.title}
-                  referrerPolicy="no-referrer"
-                  className="w-24 h-28 object-cover rounded bg-neutral-100 border border-neutral-200"
+                  className="w-24 h-28 object-cover rounded bg-neutral-100 border border-neutral-200 shrink-0"
+                  sizes="96px"
                 />
                 <div>
                   <h3 className="text-sm font-semibold text-neutral-950">{item.product.title}</h3>

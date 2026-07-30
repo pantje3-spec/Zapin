@@ -1,6 +1,7 @@
 import React from 'react';
 import { Search, X, ShoppingBag } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
+import { OptimizedImage } from './OptimizedImage';
 
 export const SearchOverlay: React.FC = () => {
   const {
@@ -70,11 +71,11 @@ export const SearchOverlay: React.FC = () => {
                     onClick={() => handleProductClick(product.id)}
                     className="flex gap-3 p-3 rounded border border-neutral-200 hover:border-black cursor-pointer transition-all group"
                   >
-                    <img
+                    <OptimizedImage
                       src={product.images[0] || 'https://images.unsplash.com/photo-1516257984-b1b4d707412e?q=80&w=300'}
                       alt={product.title}
-                      referrerPolicy="no-referrer"
-                      className="w-16 h-20 object-cover rounded bg-neutral-100"
+                      className="w-16 h-20 object-cover rounded bg-neutral-100 shrink-0"
+                      sizes="64px"
                     />
                     <div>
                       <h4 className="text-xs font-semibold text-neutral-900 group-hover:underline">

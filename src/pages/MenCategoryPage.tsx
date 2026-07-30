@@ -5,6 +5,7 @@ import { Breadcrumb } from '../components/Breadcrumb';
 import { AdNetworkBanner } from '../components/AdNetworkBanner';
 import { SEO } from '../components/SEO';
 import { ProductCardAdBadges } from '../components/ProductAdHighlights';
+import { OptimizedImage } from '../components/OptimizedImage';
 
 export const MenCategoryPage: React.FC = () => {
   const { products, setSelectedProductId, setCurrentPage } = useStore();
@@ -33,11 +34,12 @@ export const MenCategoryPage: React.FC = () => {
       {/* Category Banner */}
       <div className="relative rounded-xl overflow-hidden bg-neutral-950 text-white p-8 sm:p-14 mb-12 border border-neutral-800">
         <div className="absolute inset-0 opacity-40">
-          <img
+          <OptimizedImage
             src="https://images.unsplash.com/photo-1516257984-b1b4d707412e?q=80&w=1200&auto=format&fit=crop"
             alt="Men Collection"
-            referrerPolicy="no-referrer"
+            priority
             className="w-full h-full object-cover"
+            sizes="100vw"
           />
         </div>
         <div className="relative z-10 space-y-3 max-w-xl">
@@ -72,11 +74,11 @@ export const MenCategoryPage: React.FC = () => {
                 className="group cursor-pointer border border-neutral-200 rounded p-3 hover:border-black transition-all bg-white"
               >
                 <div className="aspect-3/4 overflow-hidden rounded bg-neutral-100 mb-3 relative">
-                  <img
+                  <OptimizedImage
                     src={p.images[0] || 'https://images.unsplash.com/photo-1516257984-b1b4d707412e?q=80&w=400'}
                     alt={p.title}
-                    referrerPolicy="no-referrer"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                   />
                   <div className="absolute bottom-2 left-2 right-2">
                     <ProductCardAdBadges showCod={true} showQualityBadge={true} isSponsored={true} />

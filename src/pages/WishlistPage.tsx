@@ -3,6 +3,7 @@ import { Heart, ShoppingBag, Trash2 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { EmptyProductState } from '../components/EmptyProductState';
 import { AdNetworkBanner } from '../components/AdNetworkBanner';
+import { OptimizedImage } from '../components/OptimizedImage';
 
 export const WishlistPage: React.FC = () => {
   const { wishlist, toggleWishlist, setSelectedProductId, setCurrentPage } = useStore();
@@ -41,11 +42,11 @@ export const WishlistPage: React.FC = () => {
                 }}
                 className="aspect-3/4 overflow-hidden rounded bg-neutral-100 mb-3 cursor-pointer"
               >
-                <img
+                <OptimizedImage
                   src={p.images[0] || 'https://images.unsplash.com/photo-1516257984-b1b4d707412e?q=80&w=400'}
                   alt={p.title}
-                  referrerPolicy="no-referrer"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                 />
               </div>
 

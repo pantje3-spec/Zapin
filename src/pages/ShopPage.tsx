@@ -7,6 +7,7 @@ import { AdNetworkBanner } from '../components/AdNetworkBanner';
 import { Breadcrumb } from '../components/Breadcrumb';
 import { SEO } from '../components/SEO';
 import { ProductCardAdBadges } from '../components/ProductAdHighlights';
+import { OptimizedImage } from '../components/OptimizedImage';
 
 export const ShopPage: React.FC = () => {
   const {
@@ -176,11 +177,11 @@ export const ShopPage: React.FC = () => {
           <div className="mt-8 bg-neutral-950 text-white rounded-2xl overflow-hidden border border-neutral-800 shadow-xl relative font-mono">
             <div className="grid grid-cols-1 md:grid-cols-3 items-center">
               <div className="relative h-48 md:h-full min-h-[180px] bg-neutral-900">
-                <img
+                <OptimizedImage
                   src={shopPageAd.imageUrl || 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=800&auto=format&fit=crop'}
                   alt={shopPageAd.title}
-                  referrerPolicy="no-referrer"
                   className="w-full h-full object-cover"
+                  sizes="(max-width: 768px) 100vw, 33vw"
                 />
                 <div className="absolute inset-0 bg-neutral-950/20" />
                 <span className="absolute top-3 left-3 bg-amber-400 text-neutral-950 text-[10px] font-bold uppercase px-2.5 py-1 rounded-md shadow-md flex items-center gap-1">
@@ -346,11 +347,11 @@ export const ShopPage: React.FC = () => {
                     className="group cursor-pointer border border-neutral-200/80 rounded p-3 hover:border-neutral-950 transition-all bg-white hover:shadow-md"
                   >
                     <div className="aspect-3/4 overflow-hidden rounded bg-neutral-100 mb-3 relative">
-                      <img
+                      <OptimizedImage
                         src={p.images[0] || 'https://images.unsplash.com/photo-1516257984-b1b4d707412e?q=80&w=400'}
                         alt={p.title}
-                        referrerPolicy="no-referrer"
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                       />
                       <span className="absolute top-2 left-2 bg-black text-white text-[10px] font-mono uppercase px-2 py-0.5 rounded">
                         {p.category}

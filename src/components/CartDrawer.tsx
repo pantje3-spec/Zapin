@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, ShoppingBag, Trash2, ArrowRight, Tag, Plus, Minus, Check } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
+import { OptimizedImage } from './OptimizedImage';
 
 export const CartDrawer: React.FC = () => {
   const {
@@ -108,11 +109,11 @@ export const CartDrawer: React.FC = () => {
             ) : (
               cart.map((item) => (
                 <div key={item.id} className="py-4 flex gap-4 items-start">
-                  <img
+                  <OptimizedImage
                     src={item.product.images[0] || 'https://images.unsplash.com/photo-1516257984-b1b4d707412e?q=80&w=300'}
                     alt={item.product.title}
-                    referrerPolicy="no-referrer"
-                    className="w-20 h-24 object-cover rounded bg-neutral-100 border border-neutral-200"
+                    className="w-20 h-24 object-cover rounded bg-neutral-100 border border-neutral-200 shrink-0"
+                    sizes="80px"
                   />
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-start">

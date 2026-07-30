@@ -85,7 +85,7 @@ const AppContent: React.FC = () => {
     <div className="min-h-screen flex flex-col font-sans bg-white text-neutral-900 selection:bg-neutral-900 selection:text-white">
       {!isAdminView && <Navbar />}
 
-      <main className="flex-1 pb-16 lg:pb-0">{renderPage()}</main>
+      <main className="flex-1 pb-28 lg:pb-0">{renderPage()}</main>
 
       {!isAdminView && <Footer />}
       {!isAdminView && <MobileBottomNav />}
