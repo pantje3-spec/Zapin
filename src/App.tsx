@@ -9,6 +9,7 @@ import { SizeGuideModal } from './components/SizeGuideModal';
 import { NewsletterPopup } from './components/NewsletterPopup';
 import { AdNetworkBanner } from './components/AdNetworkBanner';
 import { GlobalBodyAdScript } from './components/GlobalBodyAdScript';
+import { MobileBottomNav } from './components/MobileBottomNav';
 
 import { HomePage } from './pages/HomePage';
 import { ShopPage } from './pages/ShopPage';
@@ -84,9 +85,10 @@ const AppContent: React.FC = () => {
     <div className="min-h-screen flex flex-col font-sans bg-white text-neutral-900 selection:bg-neutral-900 selection:text-white">
       {!isAdminView && <Navbar />}
 
-      <main className="flex-1">{renderPage()}</main>
+      <main className="flex-1 pb-16 lg:pb-0">{renderPage()}</main>
 
       {!isAdminView && <Footer />}
+      {!isAdminView && <MobileBottomNav />}
 
       {/* Global Drawers & Overlays */}
       <SearchOverlay />

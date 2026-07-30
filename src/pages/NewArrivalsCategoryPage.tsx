@@ -61,7 +61,7 @@ export const NewArrivalsCategoryPage: React.FC = () => {
           description="There are currently no items in the New Arrivals capsule. Upload fresh drops and limited releases via the Zapin Admin Portal."
         />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           {newProducts.map((p, idx) => (
             <React.Fragment key={p.id}>
               <div

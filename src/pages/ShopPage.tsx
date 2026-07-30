@@ -338,7 +338,7 @@ export const ShopPage: React.FC = () => {
               description="This product section is currently empty. You can add new products, set pricing, and upload images using the Zapin Admin Portal."
             />
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
               {sortedProducts.map((p, idx) => (
                 <React.Fragment key={p.id}>
                   <div

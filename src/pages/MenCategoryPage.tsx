@@ -61,7 +61,7 @@ export const MenCategoryPage: React.FC = () => {
           description="There are currently no items in the Men's Apparel section. Add men's suits, coats, and streetwear items through the Zapin Admin Portal."
         />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           {menProducts.map((p, idx) => (
             <React.Fragment key={p.id}>
               <div
